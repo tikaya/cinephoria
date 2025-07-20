@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Créer un compte - Cinéphoria</title>
+
+  <!-- Google Fonts (cinéma) -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap + CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <style>
+    /* Animation du formulaire (fade-in) */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-dark text-light">
+  <%- include('partials/header') %>
+
+  <main class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card netflix-card shadow p-4 fade-in">
+
+          <h1 class="text-center mb-4 text-netflix">🎬 Créez votre compte Cinéphoria</h1>
+
+          <!-- Message d'erreur si besoin -->
+          <% if (errorMessage) { %>
+            <div class="alert alert-danger text-center" role="alert">
+              <%= errorMessage %>
+            </div>
+          <% } %>
+
+          <!-- Formulaire -->
+          <form action="/register" method="POST" novalidate>
+            <div class="mb-3">
+              <label for="prenom" class="form-label text-light">Prénom</label>
+              <input type="text" class="form-control bg-dark text-light border-netflix" id="prenom" name="prenom" required
+                     value="<%= previousValues?.prenom || '' %>">
+            </div>
+
+            <div class="mb-3">
+              <label for="nom" class="form-label text-light">Nom</label>
+              <input type="text" class="form-control bg-dark text-light border-netflix" id="nom" name="nom" required
+                     value="<%= previousValues?.nom || '' %>">
+            </div>
+
+            <div class="mb-3">
+              <label for="pseudo" class="form-label text-light">Nom d'utilisateur</label>
+              <input type="text" class="form-control bg-dark text-light border-netflix" id="pseudo" name="pseudo" required
+                     value="<%= previousValues?.pseudo || '' %>">
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label text-light">Adresse e-mail</label>
+              <input type="email" class="form-control bg-dark text-light border-netflix" id="email" name="email" required autocomplete="email"
+                     value="<%= previousValues?.email || '' %>">
+            </div>
+
+            <div class="mb-3">
+              <label for="mot_de_passe" class="form-label text-light">Mot de passe</label>
+              <input type="password" class="form-control bg-dark text-light border-netflix" id="mot_de_passe" name="password" required minlength="8" autocomplete="new-password">
+              <div class="form-text text-secondary">
+                8 caractères minimum, incluant majuscule, minuscule, chiffre et caractère spécial.
+              </div>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-netflix btn-lg shadow">Créer mon compte</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Activer le fondu global après chargement
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+    });
+  </script>
+</body>
+</html>

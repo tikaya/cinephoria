@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <style>
+    /* Animation d'apparition pour la carte */
+    .netflix-card {
+      opacity: 0;
+      transform: translateY(40px);
+      animation: fadeInUp 1s ease forwards;
+      background-color: #1f1f1f;
+      border: 2px solid #e50914;
+      border-radius: 10px;
+    }
+
+    /* Animation du titre */
+    .netflix-card h1 {
+      animation: pop 0.6s ease-in-out;
+    }
+
+    /* Effet lumineux pour le bouton */
+    .btn-netflix {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-netflix::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: all 0.6s;
+    }
+    .btn-netflix:hover::after {
+      left: 100%;
+    }
+
+    /* Animations globales */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="bg-dark text-light">
+  <!-- Header -->
+  <%- include('partials/header') %>
+
+  <!-- Contenu principal -->
+  <main class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card netflix-card shadow p-4">
+          <h1 class="text-center mb-4 text-netflix">🎬 Connexion à Cinéphoria</h1>
+
+          <form action="/login" method="POST" novalidate>
+            <div class="mb-3">
+              <label for="email" class="form-label text-light">Adresse e-mail</label>
+              <input type="email" class="form-control bg-dark text-white border-netflix" id="email" name="email" required autocomplete="email">
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label text-light">Mot de passe</label>
+              <input type="password" class="form-control bg-dark text-white border-netflix" id="password" name="password" required autocomplete="current-password">
+            </div>
+
+            <div class="mb-3">
+              <label for="role" class="form-label text-light">Je me connecte en tant que :</label>
+              <select class="form-select bg-dark text-white border-netflix" id="role" name="role">
+                <option value="client">Client</option>
+                <option value="employee">Employé</option>
+                <option value="admin">Administrateur</option>
+              </select>
+              <div class="form-text text-light">Votre rôle sera validé automatiquement.</div>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-netflix">Se connecter</button>
+            </div>
+          </form>
+
+          <div class="text-center mt-4">
+            <p class="text-light">Pas encore de compte ? <a href="/register" class="text-netflix">Inscrivez-vous</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+// Rendre le body visible après le chargement
+window.addEventListener("load", () => {
+  document.body.classList.add("loaded");
+});
+</script>
+
+</body>
+</html>
