@@ -5,6 +5,7 @@ import session from 'express-session';
 import pool from './config/db.js';
 
 // Import des routeurs
+import seanceRouter from './routes/seance.routes.js';
 import filmRouter  from './routes/film.routes.js';
 import loginRouter from './routes/login.routes.js';
 import registerRouter from './routes/register.routes.js';
@@ -39,6 +40,7 @@ app.use('/', registerRouter); // Inscription
 app.use('/', loginRouter);    // Connexion
 app.use('/', homeRouter);     // Page d’accueil
 app.use('/',filmRouter)
+app.use('/',seanceRouter);//Acceder au seance dipso pour chaque film
 
 
 // -------- Vérification de la BD --------

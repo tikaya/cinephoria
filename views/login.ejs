@@ -7,54 +7,51 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet">
   <style>
-    /* Animation d'apparition pour la carte */
-    .netflix-card {
+    /* Animation d'apparition (fade-in) */
+    .fade-in {
       opacity: 0;
       transform: translateY(40px);
-      animation: fadeInUp 1s ease forwards;
-      background-color: #1f1f1f;
-      border: 2px solid #e50914;
-      border-radius: 10px;
+      animation: fadeInUp 0.8s ease forwards;
     }
-
-    /* Animation du titre */
-    .netflix-card h1 {
-      animation: pop 0.6s ease-in-out;
-    }
-
-    /* Effet lumineux pour le bouton */
-    .btn-netflix {
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-netflix::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: all 0.6s;
-    }
-    .btn-netflix:hover::after {
-      left: 100%;
-    }
-
-    /* Animations globales */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes pop {
-      0% { transform: scale(0.95); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    /* Style premium pour la carte */
+    .cinema-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(245,197,24,0.3);
+      border-radius: 15px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(0,0,0,0.7);
+      padding: 2rem;
+    }
+    .cinema-card:hover {
+      box-shadow: 0 0 30px rgba(245,197,24,0.4);
+    }
+
+    /* Labels dorés */
+    .cinema-label {
+      color: #f5c518;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* Lien "Inscrivez-vous" plus discret */
+    .small-register {
+      font-size: 1rem;       /* Taille réduite */
+      font-weight: 400;      /* Moins épais */
+      color: #f5c518;        /* Doré */
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.3s ease;
+    }
+    .small-register:hover {
+      color: #ffcc33;        /* Variation au survol */
     }
   </style>
 </head>
-<body class="bg-dark text-light">
+<body>
   <!-- Header -->
   <%- include('partials/header') %>
 
@@ -62,23 +59,23 @@
   <main class="container mt-5 mb-5">
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6">
-        <div class="card netflix-card shadow p-4">
-          <h1 class="text-center mb-4 text-netflix">🎬 Connexion à Cinéphoria</h1>
+        <div class="cinema-card fade-in">
+          <h1 class="text-center mb-4 text-cinema">🎬 Connexion à Cinéphoria</h1>
 
           <form action="/login" method="POST" novalidate>
             <div class="mb-3">
-              <label for="email" class="form-label text-light">Adresse e-mail</label>
-              <input type="email" class="form-control bg-dark text-white border-netflix" id="email" name="email" required autocomplete="email">
+              <label for="email" class="form-label cinema-label">Adresse e-mail</label>
+              <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
             </div>
 
             <div class="mb-3">
-              <label for="password" class="form-label text-light">Mot de passe</label>
-              <input type="password" class="form-control bg-dark text-white border-netflix" id="password" name="password" required autocomplete="current-password">
+              <label for="password" class="form-label cinema-label">Mot de passe</label>
+              <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
             </div>
 
             <div class="mb-3">
-              <label for="role" class="form-label text-light">Je me connecte en tant que :</label>
-              <select class="form-select bg-dark text-white border-netflix" id="role" name="role">
+              <label for="role" class="form-label cinema-label">Je me connecte en tant que :</label>
+              <select class="form-select" id="role" name="role">
                 <option value="client">Client</option>
                 <option value="employee">Employé</option>
                 <option value="admin">Administrateur</option>
@@ -87,12 +84,16 @@
             </div>
 
             <div class="d-grid mt-4">
-              <button type="submit" class="btn btn-netflix">Se connecter</button>
+              <button type="submit" class="btn btn-cinema">Se connecter</button>
             </div>
           </form>
 
+          <!-- Lien Inscription (désormais discret) -->
           <div class="text-center mt-4">
-            <p class="text-light">Pas encore de compte ? <a href="/register" class="text-netflix">Inscrivez-vous</a></p>
+            <p class="text-light">
+              Pas encore de compte ? 
+              <a href="/register" class="small-register">Inscrivez-vous</a>
+            </p>
           </div>
         </div>
       </div>
@@ -104,11 +105,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-// Rendre le body visible après le chargement
-window.addEventListener("load", () => {
-  document.body.classList.add("loaded");
-});
-</script>
-
+    // Effet de fondu global après chargement
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+    });
+  </script>
 </body>
 </html>

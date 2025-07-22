@@ -6,18 +6,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body class="bg-dark text-light">
+<body>
   <!-- Header -->
   <%- include('partials/header') %>
 
   <main class="container mt-5">
-    <h1 class="text-center mb-4 text-netflix">🎬 Films ajoutés le dernier mercredi</h1>
+    <h1 class="text-center mb-4 text-cinema">🎬 Films ajoutés le dernier mercredi</h1>
 
     <% if (films && films.length > 0) { %>
       <div class="row">
         <% films.forEach(film => { %>
           <div class="col-md-4 mb-4">
-            <div class="card netflix-card h-100 shadow">
+            <div class="card cinema-card h-100 shadow">
               <!-- Image du film -->
               <img src="<%= film.affiche_url %>" 
                    class="card-img-top" 
@@ -25,7 +25,7 @@
 
               <div class="card-body">
                 <!-- Titre -->
-                <h5 class="card-title text-netflix"><%= film.titre %></h5>
+                <h5 class="card-title"><%= film.titre %></h5>
 
                 <!-- Description -->
                 <p class="film-description"><%= film.description %></p>
@@ -48,59 +48,57 @@
   </main>
 
   <%- include('partials/footer') %>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-// 1. Animation au scroll pour les cartes
-document.addEventListener("DOMContentLoaded", () => {
-  const cards = document.querySelectorAll(".netflix-card");
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-      }
+    // 1. Animation au scroll pour les cartes
+    document.addEventListener("DOMContentLoaded", () => {
+      const cards = document.querySelectorAll(".cinema-card");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, { threshold: 0.2 });
+
+      cards.forEach(card => observer.observe(card));
     });
-  }, { threshold: 0.2 });
 
-  cards.forEach(card => observer.observe(card));
-});
+    // 2. Zoom dynamique sur image au survol (déjà dans CSS mais renforcé)
+    document.querySelectorAll(".card-img-top").forEach(img => {
+      img.addEventListener("mouseenter", () => img.style.transform = "scale(1.05)");
+      img.addEventListener("mouseleave", () => img.style.transform = "scale(1)");
+    });
 
-// 2. Zoom léger sur image au survol (effet dynamique)
-document.querySelectorAll(".card-img-top").forEach(img => {
-  img.addEventListener("mouseenter", () => img.style.transform = "scale(1.05)");
-  img.addEventListener("mouseleave", () => img.style.transform = "scale(1)");
-});
+    // 3. Bouton "Retour en haut"
+    const scrollBtn = document.createElement("button");
+    scrollBtn.innerText = "↑ Haut";
+    scrollBtn.style.position = "fixed";
+    scrollBtn.style.bottom = "20px";
+    scrollBtn.style.right = "20px";
+    scrollBtn.style.padding = "10px 15px";
+    scrollBtn.style.background = "linear-gradient(45deg, #ff004d, #a700ff)";
+    scrollBtn.style.color = "#fff";
+    scrollBtn.style.border = "none";
+    scrollBtn.style.borderRadius = "5px";
+    scrollBtn.style.cursor = "pointer";
+    scrollBtn.style.display = "none";
+    scrollBtn.style.zIndex = "999";
+    document.body.appendChild(scrollBtn);
 
-// 3. Bouton "Retour en haut"
-const scrollBtn = document.createElement("button");
-scrollBtn.innerText = "↑ Haut";
-scrollBtn.style.position = "fixed";
-scrollBtn.style.bottom = "20px";
-scrollBtn.style.right = "20px";
-scrollBtn.style.padding = "10px 15px";
-scrollBtn.style.backgroundColor = "#e50914";
-scrollBtn.style.color = "#fff";
-scrollBtn.style.border = "none";
-scrollBtn.style.borderRadius = "5px";
-scrollBtn.style.cursor = "pointer";
-scrollBtn.style.display = "none";
-scrollBtn.style.zIndex = "999";
-document.body.appendChild(scrollBtn);
+    window.addEventListener("scroll", () => {
+      scrollBtn.style.display = window.scrollY > 300 ? "block" : "none";
+    });
 
-window.addEventListener("scroll", () => {
-  scrollBtn.style.display = window.scrollY > 300 ? "block" : "none";
-});
+    scrollBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 
-scrollBtn.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-</script>
-<script>
-// Assure que le body devient visible après le chargement
-window.addEventListener("load", () => {
-  document.body.classList.add("loaded");
-});
-</script>
-
+    // 4. Effet de fondu du body
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+    });
+  </script>
 </body>
 </html>
