@@ -1,0 +1,91 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cinephoria-app
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - cinephoria-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    command: node app.js
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: cinephoria-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-TIKAYA}
+      POSTGRES_DB: ${DB_NAME:-cinephoria}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - cinephoria-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7-jammy
+    container_name: cinephoria-mongo
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - cinephoria-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/cinephoria --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:latest
+    container_name: cinephoria-adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - cinephoria-network
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    profiles:
+      - dev
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: cinephoria-mongo-express
+    ports:
+      - "8081:8081"
+    networks:
+      - cinephoria-network
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+      ME_CONFIG_BASICAUTH: false
+    depends_on:
+      - mongo
+    profiles:
+      - dev
+
+networks:
+  cinephoria-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mongo-data:

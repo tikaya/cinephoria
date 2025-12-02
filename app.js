@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,9 +13,9 @@ import * as mongoConnect from './config/mongo.js';
 import { startPgListener } from "./services/pgListener.js";
 import { startSyncPoller } from "./services/sync.poller.js";
 import "./utils/mailer.js";
-import morgan  from 'morgan';
+import morgan from 'morgan';
 import flash from "connect-flash";
-
+// ... le reste
 
 
 // Import des routeurs

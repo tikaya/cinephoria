@@ -9,6 +9,7 @@ yarn-error.log*
 .env.local
 .env.production
 .env.*.local
+.env.docker  
 
 # IDE
 .vscode/
@@ -29,3 +30,12 @@ build/
 # Docker (volumes locaux)
 postgres-data/
 mongo-data/
+
+
+# Docker
+postgres-data/
+mongo-data/
+node_modules/
+
+# Logs
+*.log
