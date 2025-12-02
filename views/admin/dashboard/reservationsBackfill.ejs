@@ -1,0 +1,56 @@
+<h1>Réservations — Dashboard</h1>
+
+<% (flash?.success || []).forEach(m => { %>
+  <div style="color:green"><%= m %></div>
+<% }) %>
+<% (flash?.error || []).forEach(m => { %>
+  <div style="color:red"><%= m %></div>
+<% }) %>
+
+<form id="backfillForm" method="POST" action="/admin/sync/backfill">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <input type="number" name="fromId" value="0">
+  <input type="number" name="batchSize" value="500">
+  <button id="backfillBtn" type="submit">Lancer le backfill</button>
+</form>
+<script>
+  const form = document.getElementById('backfillForm');
+  const btn = document.getElementById('backfillBtn');
+  form.addEventListener('submit', () => {
+    btn.disabled = true;
+    btn.textContent = 'Backfill en cours...';
+  });
+</script>
+
+
+<table border="1" cellpadding="6" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th>#</th><th>Film</th><th>Cinéma</th><th>Places</th>
+      <th>Prix</th><th>État</th><th>Séance (Paris)</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% items.forEach(r => { %>
+    <tr>
+      <td><%= r._id %></td>
+      <td><%= r.film?.titre %></td>
+      <td><%= r.cinema?.nom %> — <%= r.cinema?.ville %></td>
+      <td><%= r.nbrPlaces %></td>
+      <td><%= (r.prixTotal ?? 0).toFixed(2) %> €</td>
+      <td><%= r.etat %></td>
+      <td>
+        <% if (r.seance?.showStartAt) { %>
+          <%= new Date(r.seance.showStartAt).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) %>
+        <% } %>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+
+<nav style="margin-top:10px">
+  <span>Page <%= page %> / <%= pages %></span>
+  <% if (page > 1) { %> | <a href="?page=<%= page-1 %>">← Précédent</a><% } %>
+  <% if (page < pages) { %> | <a href="?page=<%= page+1 %>">Suivant →</a><% } %>
+</nav>

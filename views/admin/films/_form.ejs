@@ -1,0 +1,45 @@
+<div class="row g-3">
+  <div class="col-lg-8">
+    <label class="form-label">Titre *</label>
+    <input type="text" name="titre" class="form-control" value="<%= (film && film.titre) || (old && old.titre) || '' %>">
+    <% if (errors) { const e = errors.find(x => x.field==='titre'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+  <div class="col-lg-4">
+    <label class="form-label">Genre *</label>
+    <input type="text" name="genre" class="form-control" value="<%= (film && film.genre) || (old && old.genre) || '' %>">
+    <% if (errors) { const e = errors.find(x => x.field==='genre'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">Description *</label>
+    <textarea name="description" rows="4" class="form-control"><%= (film && film.description) || (old && old.description) || '' %></textarea>
+    <% if (errors) { const e = errors.find(x => x.field==='description'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Âge minimum</label>
+    <input type="number" min="0" name="age_minimum" class="form-control"
+           value="<%= (film && film.age_minimum) ?? (old && old.age_minimum) ?? '' %>">
+    <% if (errors) { const e = errors.find(x => x.field==='age_minimum'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Affiche (URL)</label>
+    <input type="url" name="affiche_url" class="form-control"
+           value="<%= (film && film.affiche_url) || (old && old.affiche_url) || '' %>">
+  </div>
+
+  <div class="col-md-4 form-check mt-4">
+    <input class="form-check-input" type="checkbox" name="label_coup_de_coeur" id="coup" 
+      <%= ((film && film.label_coup_de_coeur) || (old && !!old.label_coup_de_coeur)) ? 'checked':'' %> >
+    <label class="form-check-label" for="coup">Coup de cœur</label>
+  </div>
+</div>

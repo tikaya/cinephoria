@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8" /><title>Salles - Cinéphoria</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<style>
+:root{ --gold:#f5c518; --panel:rgba(12,18,38,.72); --stroke:rgba(255,255,255,.08); }
+body{ background:#0b1121; color:#e6ebff; }
+.pane{ background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01)),var(--panel);
+       border:1px solid var(--stroke); border-radius:18px; backdrop-filter:blur(10px); }
+.btn-gold{ border:1px solid rgba(245,197,24,.6); border-radius:999px; padding:.45rem .9rem; text-decoration:none; color:#fff; background:linear-gradient(180deg,rgba(245,197,24,.16),rgba(245,197,24,.06)); }
+.muted{ color:#9aa4c7; }
+</style></head><body>
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3"><i class="fa-solid fa-couch me-2 text-warning"></i> Salles</h1>
+    <div class="d-flex gap-2">
+      <a href="/admin" class="btn btn-outline-light">← Admin</a>
+      <a href="/admin/salles/new" class="btn-gold"><i class="fa-solid fa-plus"></i> Nouvelle salle</a>
+    </div>
+  </div>
+
+  <% if (msg) { %><div class="alert alert-success"><%= msg %></div><% } %>
+  <% if (err) { %><div class="alert alert-danger"><%= err %></div><% } %>
+
+  <!-- Filtres -->
+  <form method="get" class="pane p-3 mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-sm-4">
+        <select class="form-select" name="cinemaId">
+          <option value="">— Tous les cinémas —</option>
+          <% (cinemas||[]).forEach(c => { %>
+            <option value="<%= c.id_cinema %>" <%= (Number(cinemaId) === c.id_cinema) ? 'selected':'' %>>
+              <%= c.nom_cinema %> (<%= c.ville %>)
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-sm-6 col-lg-4">
+        <input class="form-control" name="q" value="<%= q %>" placeholder="Rechercher par nom de salle…" />
+      </div>
+
+      <div class="col-auto">
+        <button class="btn btn-light">Rechercher</button>
+      </div>
+      <div class="col-auto">
+        <a class="btn btn-outline-secondary" href="/admin/salles">Réinitialiser</a>
+      </div>
+
+      <div class="col-auto text-secondary ms-auto">
+        Total : <span class="badge bg-warning text-dark"><%= total %></span>
+      </div>
+    </div>
+  </form>
+
+  <!-- Tableau -->
+  <div class="table-responsive pane p-2">
+    <table class="table table-dark align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Cinéma</th>
+          <th>Qualité</th>
+          <th>Capacité</th>
+          <th>Sièges</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% if (!salles || salles.length === 0) { %>
+        <tr><td colspan="7" class="text-center muted py-4">Aucune salle</td></tr>
+      <% } else { salles.forEach(s => { %>
+        <tr>
+          <td><%= s.id_salle %></td>
+          <td><strong><%= s.nom_salle %></strong></td>
+          <td><%= s.nom_cinema ? `${s.nom_cinema}${s.ville ? ' ('+s.ville+')' : ''}` : '—' %></td>
+          <td><%= s.qualite_projection || '—' %></td>
+          <td><%= s.capacite == null ? '—' : s.capacite %></td>
+          <td><%= s.nb_sieges %></td>
+          <td class="text-end">
+            <a href="/admin/salles/<%= s.id_salle %>/edit" class="btn btn-sm btn-outline-warning">
+              <i class="fa-solid fa-pen"></i>
+            </a>
+            <form action="/admin/salles/<%= s.id_salle %>/delete" method="post" class="d-inline"
+                  onsubmit="return confirm('Supprimer cette salle ?');">
+              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+      <% }) } %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if (total > pageSize) { const pages = Math.ceil(total / pageSize); %>
+    <nav class="mt-3"><ul class="pagination pagination-sm">
+      <% for (let i=1;i<=pages;i++){ %>
+        <li class="page-item <%= i===page ? 'active':'' %>">
+          <a class="page-link"
+             href="?page=<%= i %>&q=<%= encodeURIComponent(q) %><%= cinemaId ? '&cinemaId=' + encodeURIComponent(cinemaId) : '' %>">
+            <%= i %>
+          </a>
+        </li>
+      <% } %>
+    </ul></nav>
+  <% } %>
+</div>
+</body></html>

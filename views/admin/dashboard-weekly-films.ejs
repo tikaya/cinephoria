@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard 7 jours — Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Poppins&display=swap" rel="stylesheet"/>
+
+  <style>
+    body {
+      background: radial-gradient(circle, #13173a 0%, #0a0f1f 70%);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      color: #f5c518;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(245,197,24,.2);
+      box-shadow: 0 0 20px rgba(245,197,24,.15);
+    }
+
+    table {
+      color: white;
+    }
+
+    canvas {
+      max-height: 420px;
+    }
+  </style>
+</head>
+
+<body>
+
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+
+  <h1>📊 Réservations par film (7 jours)</h1>
+
+  <div class="row g-4">
+
+    <!-- TABLEAU -->
+    <div class="col-lg-6">
+      <div class="card p-4">
+        <h5 class="text-warning">Classement films</h5>
+
+        <table class="table table-dark table-striped align-middle mt-3">
+          <thead>
+            <tr>
+              <th>Film</th>
+              <th>Réservations</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GRAPHIQUE -->
+    <div class="col-lg-6">
+      <div class="card p-4">
+        <h5 class="text-warning">Graphique</h5>
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOTAL -->
+  <div class="text-center mt-4">
+    <h4>Total des réservations : <span class="text-warning" id="total"></span></h4>
+  </div>
+
+</div>
+
+<script>
+async function loadStats() {
+
+  const res = await fetch("/admin/api/dashboard/weekly-films");
+  const data = await res.json();
+
+  const labels = data.map(r => r.film);
+  const values = data.map(r => r.reservations);
+
+  // TABLEAU
+  const tbody = document.getElementById("dashboard-table");
+  let total = 0;
+
+  data.forEach(row => {
+    total += row.reservations;
+    tbody.innerHTML += `
+      <tr>
+        <td>${row.film}</td>
+        <td class="text-warning fw-bold">${row.reservations}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("total").innerText = total;
+
+  // GRAPH
+  new Chart(document.getElementById("chart"), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: "Réservations",
+        data: values,
+        borderRadius: 10,
+        backgroundColor: '#f5c518'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { ticks: { color: "#fff" } },
+        y: { ticks: { color: "#fff" }, beginAtZero: true }
+      }
+    }
+  });
+
+}
+
+loadStats();
+</script>
+
+</body>
+</html>

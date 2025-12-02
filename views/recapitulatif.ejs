@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Récapitulatif - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; display: flex; flex-direction: column;
+      background: radial-gradient(circle at center, #0e1324, #05070f 90%);
+      color: #eaeaea; font-family: 'Poppins', sans-serif; text-align: center;
+      opacity: 0; transition: opacity 1s ease;
+    }
+    body.loaded { opacity: 1; }
+    header, footer {
+      width: 100%; background: rgba(10,15,31,0.92); color: #eaeaea; text-align: center;
+      padding: 15px 0; box-shadow: 0 0 20px rgba(245,197,24,0.2); font-size: 1rem; backdrop-filter: blur(8px);
+    }
+    main { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 10px 0 10px; }
+    footer { flex-shrink: 0; }
+    h1 {
+      margin: 22px 0 40px; color: #f5c518; font-family: 'Cinzel', serif; font-size: 2.3rem; letter-spacing: 1px;
+      text-shadow: 0 0 16px rgba(245,197,24,0.5); animation: glowTitle 1.5s ease-in-out infinite alternate; display: inline-block;
+    }
+    @keyframes glowTitle { from{ text-shadow:0 0 8px rgba(245,197,24,0.33);} to{ text-shadow:0 0 22px rgba(245,197,24,0.95);} }
+    .recap-card {
+      background: rgba(255,255,255,0.04); border: 1.3px solid rgba(245,197,24,0.3); border-radius: 17px; backdrop-filter: blur(18px);
+      box-shadow: 0 0 38px rgba(0,0,0,0.72); color: #fff; max-width: 650px; width: 100%;
+      padding: 30px 28px 32px 28px; margin-bottom: 8px !important; text-align: left; transition: transform 0.4s, box-shadow 0.4s;
+      animation: cardFadeIn 0.8s; position: relative;
+    }
+    .recap-card:hover { transform: translateY(-5px) scale(1.018); box-shadow: 0 0 60px rgba(245,197,24,0.26); }
+    @keyframes cardFadeIn { from{ opacity:0; transform:translateY(30px);} to{ opacity:1; transform:translateY(0);} }
+    .recap-card h3 { color: #f5c518; font-size: 1.55rem; margin-bottom: 18px; text-shadow: 0 0 10px rgba(245,197,24,0.38); font-family: 'Cinzel', serif; }
+    .recap-item { margin: 14px 0; font-size: 1.11rem; display: flex; align-items: center; }
+    .recap-item i { margin-right: 10px; color: #f5c518; font-size: 1.18rem; }
+    .recap-total {
+      font-size: 1.38rem; font-weight: bold; color: #ff004d; text-align: center; margin-top: 26px;
+      text-shadow: 0 0 15px rgba(255,0,77,0.66); animation: totalPulse 1.5s infinite alternate;
+    }
+    @keyframes totalPulse { from{ text-shadow:0 0 5px rgba(255,0,77,0.5);} to{ text-shadow:0 0 20px rgba(255,0,77,1);} }
+    .btn-cinema {
+      background: rgba(245, 197, 24, 0.16); color: #f5c518; border: 2px solid #f5c518; border-radius: 28px;
+      font-weight: 500; font-size: 1.06rem; padding: 0.67em 1.6em 0.67em 1.25em; min-width: 162px; margin: 16px 8px 0 8px;
+      letter-spacing: 0.02em; box-shadow: 0 3px 15px 0 rgba(245,197,24,0.07); transition: background 0.18s, color 0.2s, border-color 0.2s, box-shadow 0.16s, transform 0.14s;
+      display: inline-flex; align-items: center; gap: 0.62em; position: relative; text-decoration: none;
+    }
+    .btn-cinema i { font-size: 1.11em; margin-right: 0.4em; opacity: 0.88; }
+    .btn-cinema:not(:disabled):hover, .btn-cinema:not(:disabled):focus {
+      background: #f5c518; color: #181612; border-color: #f5c518; box-shadow: 0 7px 28px 0 rgba(245,197,24,0.13);
+      transform: translateY(-2px) scale(1.027); text-decoration: none;
+    }
+    .btn-cinema:active { transform: scale(0.97); box-shadow: 0 2px 7px 0 rgba(245,197,24,0.09); }
+    .btn-cinema.btn-outline { background: transparent; color: #f5c518; border: 2px solid #f5c518; }
+    .btn-cinema.btn-outline:hover, .btn-cinema.btn-outline:focus { background: rgba(245, 197, 24, 0.11); color: #fff; border-color: #f5c518; }
+    .btn-cinema:disabled {
+      opacity: 0.56; cursor: not-allowed; background: #55555510 !important; color: #adadad !important; border-color: #99999944 !important;
+      box-shadow: none; transform: none;
+    }
+    .alert, .alert-warning { margin-bottom: 0 !important; }
+    .btn-group, .boutons-div { margin-bottom: 0 !important; }
+    main > :last-child { margin-bottom: 0 !important; }
+    @media (max-width: 700px) { main { padding: 15px 2vw 0 2vw; } .recap-card { padding: 1.1rem 0.7rem 1.6rem 0.7rem; } h1 { font-size: 1.23rem; } }
+    @media (max-width: 550px) {
+      .btn-cinema { width: 97%; min-width: 0; font-size: 1rem; padding: 0.8em 0; margin: 13px 0 0 0; display: block; text-align: center; justify-content: center; }
+      .recap-card { font-size: 0.96rem; } .recap-card h3 { font-size: 1.03rem; } .recap-item i { font-size: 1.01rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <%- include('partials/header') %>
+  </header>
+
+  <main>
+    <h1><i class="fas fa-ticket-alt"></i> Récapitulatif de Réservation</h1>
+
+    <div class="recap-card">
+      <h3><i class="fas fa-film"></i> <%= recapitulatif.film_titre %></h3>
+
+      <div class="recap-item"><i class="fas fa-map-marker-alt"></i> <strong>Cinéma :</strong> <%= recapitulatif.nom_cinema %></div>
+      <div class="recap-item"><i class="fas fa-door-open"></i> <strong>Salle :</strong> <%= recapitulatif.nom_salle %></div>
+
+      <div class="recap-item">
+        <i class="fas fa-calendar-alt"></i> <strong>Date :</strong>
+        <span class="date-format" data-date="<%= recapitulatif.date_seance %>"></span>
+      </div>
+
+      <div class="recap-item">
+        <i class="fas fa-clock"></i> <strong>Heure :</strong>
+        <span class="time-format" data-time="<%= recapitulatif.heure_debut %>"></span>
+        &nbsp;–&nbsp;
+        <span class="time-format" data-time="<%= recapitulatif.heure_fin %>"></span>
+      </div>
+
+      <div class="recap-item">
+        <i class="fas fa-chair"></i> <strong>Places :</strong> <%= recapitulatif.nbr_places %>
+      </div>
+
+      <% /* --- Affichage des sièges : labels reçus depuis la page sièges --- */ %>
+      <% const labelsFromQuery = (request.query && request.query.labels) ? request.query.labels : ''; %>
+      <% if (labelsFromQuery) { %>
+        <div class="recap-item">
+          <i class="fas fa-th-list"></i> <strong>Sièges :</strong> <%= labelsFromQuery %>
+        </div>
+      <% } %>
+
+      <div class="recap-item">
+        <i class="fas fa-tag"></i> <strong>Prix unitaire :</strong> <%= recapitulatif.prix_unitaire %> €
+      </div>
+
+      <div class="recap-total">
+        Total : <%= parseFloat(recapitulatif.total_prix).toFixed(2) %> €
+      </div>
+    </div>
+
+    <!-- BLOC BOUTONS/ALERTES -->
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:0.5em; margin-bottom:0 !important;">
+      <% 
+        const siegesIdsFromQuery = (request.query && request.query.sieges) ? request.query.sieges : '';
+        const redirectUrl = encodeURIComponent(request.originalUrl || '/recapitulatif');
+      %>
+
+      <% if (isAuthenticated) { %>
+        <!-- Connecté : 2 boutons -->
+        <form method="POST" action="/reservation/valider" style="display:inline;">
+          <input type="hidden" name="seanceId"  value="<%= recapitulatif.id_seance || '' %>">
+          <input type="hidden" name="nbrPlaces" value="<%= recapitulatif.nbr_places %>">
+          <input type="hidden" name="sieges"    value="<%= siegesIdsFromQuery %>"><!-- IDs -->
+          <input type="hidden" name="labels"    value="<%= labelsFromQuery %>"><!-- optionnel mais pratique -->
+          <input type="hidden" name="prix"      value="<%= recapitulatif.total_prix %>">
+
+          <button type="submit" class="btn-cinema">
+            <i class="fas fa-check"></i> Confirmer
+          </button>
+        </form>
+
+        <a href="/sieges?seanceId=<%= recapitulatif.id_seance || '' %>&cinemaId=<%= recapitulatif.id_cinema %>&filmId=<%= recapitulatif.id_film %>&nbPlaces=<%= recapitulatif.nbr_places %>"
+           class="btn-cinema btn-outline">
+          <i class="fas fa-arrow-left"></i> Modifier sièges
+        </a>
+      <% } else { %>
+        <div class="alert alert-warning mt-3 w-100" role="alert" style="max-width:380px; margin:auto; margin-bottom:0 !important;">
+          <i class="fas fa-exclamation-triangle"></i> Vous devez être connecté pour confirmer.
+        </div>
+
+        <a href="/login?redirect=<%= redirectUrl %>" class="btn-cinema">
+          <i class="fas fa-sign-in-alt"></i> Se connecter
+        </a>
+        <a href="/register?redirect=<%= redirectUrl %>" class="btn-cinema">
+          <i class="fas fa-user-plus"></i> Créer un compte
+        </a>
+      <% } %>
+    </div>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <script>
+    // Date lisible (FR)
+    document.querySelectorAll('.date-format').forEach(el => {
+      const date = new Date(el.dataset.date);
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      el.textContent = date.toLocaleDateString('fr-FR', options);
+    });
+
+    // Heures HHhMM
+    document.querySelectorAll('.time-format').forEach(el => {
+      const time = el.dataset.time;
+      if (time) {
+        const [hour, minute] = time.split(':');
+        el.textContent = `${String(hour).padStart(2, '0')}h${String(minute).padStart(2, '0')}`;
+      }
+    });
+
+    // Animation de chargement
+    window.addEventListener('load', () => document.body.classList.add('loaded'));
+  </script>
+</body>
+</html>

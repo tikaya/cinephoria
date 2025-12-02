@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title || (film ? film.titre + " – Cinéphoria" : "Film – Cinéphoria") %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fonts + Icons + Bootstrap -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --gold-light: #ffdd57;
+      --gold-glow: rgba(245,197,24,0.45);
+      --bg1: #0a0f1f;
+      --bg2: #121829;
+      --ink: #eaeaea;
+      --purple: #a700ff;
+      --pink: #ff004d;
+      --card-bg: rgba(255,255,255,0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #1a2341, #0a0f1f 50%, #000000);
+      background-size: 100% 200%;
+      animation: gradientFlow 22s ease-in-out infinite;
+      color: var(--ink);
+      font-family: 'Poppins', sans-serif;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body.loaded { opacity: 1; }
+
+    /* Particules */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(245,197,24,0.15), transparent),
+        radial-gradient(2px 2px at 60% 70%, rgba(167,0,255,0.12), transparent),
+        radial-gradient(1px 1px at 50% 50%, rgba(255,0,77,0.12), transparent),
+        radial-gradient(1px 1px at 80% 10%, rgba(245,197,24,0.1), transparent);
+      background-size: 200% 200%;
+      background-position: 0% 0%;
+      animation: particlesFloat 32s ease infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 50% 0%; }
+      50% { background-position: 50% 100%; }
+      100% { background-position: 50% 0%; }
+    }
+
+    @keyframes particlesFloat {
+      0%, 100% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+    }
+
+    header, footer {
+      width: 100%;
+      background: rgba(10, 15, 31, 0.96);
+      backdrop-filter: blur(18px);
+      text-align: center;
+      padding: 14px 0;
+      color: var(--ink);
+      font-size: 0.95rem;
+      box-shadow: 0 4px 26px rgba(0,0,0,0.7);
+      position: relative;
+      z-index: 10;
+    }
+
+    footer {
+      margin-top: auto;
+      border-top: 1px solid rgba(245,197,24,0.18);
+    }
+
+    main {
+      flex: 1;
+      padding: 30px 0 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* HERO FILM */
+    .film-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+      gap: 2.5rem;
+      align-items: stretch;
+      margin-bottom: 3rem;
+    }
+
+    .poster-wrap {
+      position: relative;
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow:
+        0 15px 45px rgba(0,0,0,0.8),
+        0 0 0 2px rgba(245,197,24,0.25);
+      background: radial-gradient(circle at top, rgba(245,197,24,0.08), rgba(0,0,0,0.85));
+    }
+
+    .poster-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 10% 0%, rgba(245,197,24,0.12), transparent 60%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .film-poster {
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.02);
+      transition: transform 0.7s ease;
+    }
+
+    .poster-wrap:hover .film-poster {
+      transform: scale(1.06);
+    }
+
+    .age-badge {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: linear-gradient(135deg, #ff004d, #a700ff);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 16px rgba(255,0,77,0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .age-badge i { font-size: 0.9rem; }
+
+    .coup-coeur-badge {
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      background: linear-gradient(135deg, #ff004d, #ff7a45);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 6px 18px rgba(255,0,77,0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      animation: heartBeat 1.6s ease-in-out infinite;
+    }
+
+    .coup-coeur-badge i { font-size: 1rem; }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+
+    .film-main-info {
+      background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+      border-radius: 24px;
+      border: 2px solid rgba(245,197,24,0.32);
+      padding: 1.8rem 2rem;
+      box-shadow:
+        0 10px 32px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .film-main-info::before {
+      content: '';
+      position: absolute;
+      inset: -60%;
+      background: linear-gradient(120deg,
+        transparent,
+        rgba(245,197,24,0.06),
+        transparent);
+      opacity: 0.7;
+      animation: shimmerHero 5s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmerHero {
+      0% { transform: translateX(-40%) translateY(-40%); }
+      100% { transform: translateX(40%) translateY(40%); }
+    }
+
+    .film-main-info > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .film-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 4vw, 2.7rem);
+      letter-spacing: 1px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 18px var(--gold-glow);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .film-genre {
+      font-size: 0.95rem;
+      color: #d0d4e3;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .film-genre i {
+      color: var(--gold);
+    }
+
+    .film-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .film-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      color: #dadff5;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(5,10,25,0.7);
+      border: 1px solid rgba(245,197,24,0.25);
+    }
+
+    .film-meta-item i {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .film-note-block {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .note-circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background:
+        conic-gradient(
+          var(--gold) calc(<%= avgNote || 0 %> * 1%),
+          rgba(255,255,255,0.06) 0
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 22px rgba(245,197,24,0.4);
+    }
+
+    .note-circle::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle at top, #343955, #050814);
+    }
+
+    .note-value {
+      position: relative;
+      font-weight: 700;
+      color: var(--gold-light);
+      font-size: 1.15rem;
+    }
+
+    .note-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      font-size: 0.95rem;
+    }
+
+    .note-stars {
+      display: inline-block;
+      position: relative;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .stars-outer {
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+      color: rgba(255,255,255,0.18);
+    }
+
+    .stars-inner {
+      position: absolute;
+      left: 0;
+      top: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      color: var(--gold);
+    }
+
+    .film-synopsis {
+      font-size: 0.98rem;
+      color: #dde3ff;
+      line-height: 1.7;
+      margin-bottom: 1.4rem;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+      color: #cdd2e9;
+      text-decoration: none;
+      opacity: 0.85;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+      transform: translateX(-3px);
+      color: #fff;
+    }
+
+    /* SECTIONS: SEANCES + AVIS */
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-shadow: 0 0 12px rgba(245,197,24,0.5);
+    }
+
+    .section-title i {
+      color: var(--gold-light);
+    }
+
+    .block-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1.5px solid rgba(245,197,24,0.28);
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.85),
+        inset 0 1px 0 rgba(255,255,255,0.12);
+      padding: 1.5rem 1.7rem;
+      margin-bottom: 2.3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .block-card::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -40%;
+      width: 60%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(245,197,24,0.12), transparent 70%);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .block-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Séances */
+    .seance-pill {
+      background: rgba(5,10,25,0.9);
+      border-radius: 18px;
+      border: 1px solid rgba(245,197,24,0.28);
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.4rem;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #e4e7fb;
+    }
+
+    .seance-main {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      min-width: 180px;
+    }
+
+    .seance-main i {
+      color: var(--gold-light);
+    }
+
+    .seance-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1rem;
+      flex: 1;
+    }
+
+    .seance-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15,20,45,0.9);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.85rem;
+    }
+
+    .seance-meta i {
+      color: var(--gold);
+      font-size: 0.95rem;
+    }
+
+    .btn-reserver {
+      background: linear-gradient(135deg, #ff004d 0%, #c7007a 50%, #a700ff 100%);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(255,0,77,0.6);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-reserver:hover {
+      transform: translateY(-2px) scale(1.03);
+      background: linear-gradient(135deg, #ff1a5e 0%, #d6008f 50%, #b800ff 100%);
+      box-shadow: 0 7px 24px rgba(255,0,77,0.8);
+      color: #fff;
+    }
+
+    .no-seance {
+      text-align: center;
+      color: #d1d5ed;
+      font-size: 0.95rem;
+      padding: 1rem 0.5rem 0.2rem;
+      opacity: 0.9;
+    }
+
+    /* Avis */
+    .avis-item {
+      padding: 1rem 1.1rem;
+      border-radius: 16px;
+      background: rgba(7,10,25,0.9);
+      border: 1px solid rgba(245,197,24,0.18);
+      margin-bottom: 1rem;
+      display: grid;
+      grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+      gap: 0.8rem 1.2rem;
+      font-size: 0.92rem;
+    }
+
+    .avis-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .avis-user {
+      font-weight: 600;
+      color: #fdfdfd;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .avis-user i {
+      color: var(--gold);
+    }
+
+    .avis-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--gold-light);
+      font-size: 0.9rem;
+    }
+
+    .avis-note i {
+      color: var(--gold);
+    }
+
+    .avis-email {
+      font-size: 0.8rem;
+      color: #aeb3d4;
+      word-break: break-all;
+    }
+
+    .avis-commentaire {
+      color: #dde2ff;
+      line-height: 1.6;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+
+    .no-avis {
+      text-align: center;
+      padding: 0.8rem 0.4rem;
+      color: #d1d5ed;
+      font-size: 0.95rem;
+    }
+
+    /* Scroll Top */
+    #scrollBtn {
+      position: fixed;
+      bottom: 28px;
+      right: 24px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 2px solid rgba(245,197,24,0.35);
+      background: linear-gradient(135deg, #ff004d, #a700ff);
+      color: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      z-index: 1001;
+      cursor: pointer;
+      box-shadow:
+        0 6px 22px rgba(245,197,24,0.5),
+        0 0 40px rgba(167,0,255,0.45);
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+
+    #scrollBtn:hover {
+      transform: scale(1.18) rotate(360deg);
+      box-shadow:
+        0 10px 34px rgba(255,0,77,0.8),
+        0 0 60px rgba(167,0,255,0.8);
+      border-color: rgba(245,197,24,0.7);
+    }
+
+    /* Responsive */
+    @media (max-width: 991.98px) {
+      .film-hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .poster-wrap {
+        max-width: 360px;
+        margin: 0 auto;
+      }
+      main {
+        padding-top: 22px;
+      }
+    }
+
+    @media (max-width: 767.98px) {
+      .film-main-info {
+        padding: 1.4rem 1.2rem;
+      }
+      .avis-item {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .block-card {
+        padding: 1.3rem 1rem;
+      }
+      .seance-pill {
+        align-items: flex-start;
+      }
+      #scrollBtn {
+        bottom: 18px;
+        right: 16px;
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    /* Animation apparition */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(25px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <%- include('partials/header', { currentUser }) %>
+  </header>
+
+  <main class="container">
+    <div class="mb-3">
+      <a href="/films" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i>
+        Retour au catalogue des films
+      </a>
+    </div>
+
+    <!-- HERO -->
+    <section class="film-hero fade-in-up">
+      <!-- Affiche -->
+      <aside class="poster-wrap">
+        <img
+          src="<%= film?.affiche_url || '/images/default_poster.jpg' %>"
+          alt="Affiche de <%= film?.titre %>"
+          class="film-poster"
+        >
+        <% if (film && typeof film.age_minimum !== 'undefined' && film.age_minimum !== null) { %>
+          <div class="age-badge">
+            <i class="fa-solid fa-user-shield"></i>
+            <span><%= film.age_minimum %>+</span>
+          </div>
+        <% } %>
+
+        <% if (film && film.label_coup_de_coeur) { %>
+          <div class="coup-coeur-badge">
+            <i class="fa-solid fa-heart"></i> Coup de cœur
+          </div>
+        <% } %>
+      </aside>
+
+      <!-- Infos principales -->
+      <article class="film-main-info">
+        <h1 class="film-title">
+          <i class="fa-solid fa-film"></i>
+          <span><%= film?.titre %></span>
+        </h1>
+
+        <div class="film-genre">
+          <i class="fa-solid fa-theater-masks"></i>
+          <span><strong>Genre :</strong> <%= film?.genre || "Genre non spécifié" %></span>
+        </div>
+
+        <div class="film-meta">
+          <% if (film && film.date_ajout) { %>
+            <div class="film-meta-item">
+              <i class="fa-solid fa-calendar-plus"></i>
+              <span>Ajouté le 
+                <%= new Date(film.date_ajout).toLocaleDateString("fr-FR") %>
+              </span>
+            </div>
+          <% } %>
+
+          <% if (typeof film?.age_minimum !== 'undefined' && film.age_minimum !== null) { %>
+            <div class="film-meta-item">
+              <i class="fa-solid fa-user-lock"></i>
+              <span>Âge minimum : <strong><%= film.age_minimum %>+</strong></span>
+            </div>
+          <% } %>
+
+          <div class="film-meta-item">
+            <i class="fa-solid fa-star-half-stroke"></i>
+            <span>
+              Note moyenne :
+              <% if (nbAvis > 0) { %>
+                <strong><%= avgNote %></strong> / 10
+                (<%= nbAvis %> avis)
+              <% } else { %>
+                Pas encore de note
+              <% } %>
+            </span>
+          </div>
+        </div>
+
+        <div class="film-note-block">
+          <div class="note-circle">
+            <div class="note-value">
+              <% if (nbAvis > 0) { %>
+                <%= avgNote %>
+              <% } else { %>
+                —
+              <% } %>
+            </div>
+          </div>
+
+          <div class="note-details">
+            <div class="note-stars">
+              <span class="stars-outer">
+                ★★★★★
+                <span class="stars-inner" style="width: <%= nbAvis > 0 ? ( (avgNote / 10) * 100 ) : 0 %>%;">
+                  ★★★★★
+                </span>
+              </span>
+              <small class="ms-1">(<%= nbAvis %> avis)</small>
+            </div>
+            <small class="text-muted">
+              La note est calculée à partir des avis <strong>validés</strong> par nos employés.
+            </small>
+          </div>
+        </div>
+
+        <div class="film-synopsis">
+          <p><%= film?.description || "Aucun synopsis disponible pour ce film pour le moment." %></p>
+        </div>
+      </article>
+    </section>
+
+    
+
+    <!-- AVIS VALIDÉS -->
+    <section class="fade-in-up">
+      <div class="block-card">
+        <h2 class="section-title">
+          <i class="fa-solid fa-comments"></i>
+          Avis des spectateurs
+        </h2>
+
+        <% if (avis && avis.length > 0) { %>
+          <% avis.forEach(a => { %>
+            <article class="avis-item">
+              <div class="avis-header">
+                <div class="avis-user">
+                  <i class="fa-solid fa-user-circle"></i>
+                  <span><%= a.username || a.email || "Utilisateur anonyme" %></span>
+                </div>
+                <div class="avis-note">
+                  <i class="fa-solid fa-star"></i>
+                  <span><strong><%= a.note %></strong>/10</span>
+                </div>
+                <% if (a.email) { %>
+                  <div class="avis-email">
+                    <i class="fa-regular fa-envelope me-1"></i>
+                    <%= a.email %>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="avis-commentaire">
+                “<%= a.commentaire %>”
+              </div>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <p class="no-avis">
+            Aucun avis n’a encore été publié pour ce film.
+            <br>
+            Les avis laissés par les utilisateurs sont affichés ici après validation par un employé.
+          </p>
+        <% } %>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <button id="scrollBtn" aria-label="Retour en haut">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Fade-in on scroll
+    document.addEventListener("DOMContentLoaded", () => {
+      const els = document.querySelectorAll(".fade-in-up");
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) e.target.classList.add("visible");
+        });
+      }, { threshold: 0.12 });
+      els.forEach(el => observer.observe(el));
+    });
+
+    // Body load
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+    });
+
+    // Scroll top
+    const scrollBtn = document.getElementById("scrollBtn");
+    window.addEventListener("scroll", () => {
+      scrollBtn.style.display = window.scrollY > 260 ? "flex" : "none";
+    });
+    scrollBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>

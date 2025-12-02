@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nouveau mot de passe - Cinéphoria</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+
+  <style>
+    body {
+      min-height:100vh;
+      background: radial-gradient(circle at 20% 30%, #1a1f36, #0a0f1f);
+      color:white;
+      font-family:"Poppins", sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .cinema-card {
+      background:rgba(255,255,255,0.12);
+      padding:3rem;
+      border-radius:20px;
+      border:2px solid rgba(245,197,24,0.3);
+      box-shadow:0 0 40px rgba(245,197,24,0.25);
+      width:100%;
+      max-width:450px;
+    }
+
+    h1 {
+      color:#f5c518;
+      font-family:"Cinzel", serif;
+      text-align:center;
+    }
+
+    input {
+      width:100%;
+      padding:12px;
+      margin-top:1rem;
+      border-radius:8px;
+      background:rgba(0,0,0,0.5);
+      border:1px solid rgba(245,197,24,0.4);
+      color:white;
+    }
+
+    button {
+      margin-top:1.5rem;
+      width:100%;
+      background:linear-gradient(45deg,#ff004d,#a700ff);
+      border:none;
+      color:white;
+      padding:13px;
+      border-radius:8px;
+      font-weight:bold;
+    }
+
+    button:hover { box-shadow:0 0 20px rgba(245,197,24,0.4); }
+  </style>
+</head>
+
+<body>
+
+<div class="cinema-card">
+  <h1>Nouveau mot de passe</h1>
+
+  <p class="text-center">Vous devez définir un nouveau mot de passe.</p>
+
+  <form method="POST" action="/force-password-change">
+    <input type="password" name="password" placeholder="Nouveau mot de passe" required>
+    <button type="submit">Valider</button>
+  </form>
+</div>
+<script>
+  window.addEventListener("load", () => {
+    document.body.classList.add("loaded");
+  });
+</script>
+
+</body>
+</html>

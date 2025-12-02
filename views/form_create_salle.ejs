@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Créer une salle - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts + Icons + Bootstrap -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --bg1: #0a0f1f;
+      --bg2: #121829;
+      --ink: #eaeaea;
+    }
+
+    body {
+      background: radial-gradient(circle at center, var(--bg2), var(--bg1) 85%);
+      background-size: 300% 300%;
+      animation: gradientMove 20s ease infinite;
+      color: var(--ink);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body.loaded { opacity: 1; }
+
+    h1.text-cinema {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      text-shadow: 0 0 14px rgba(245,197,24,0.6), 0 0 25px rgba(0,0,0,0.9);
+      margin-bottom: 30px;
+      text-align: center;
+      animation: fadeInDown 1.1s ease;
+    }
+
+    @keyframes fadeInDown { from {opacity:0; transform:translateY(-25px);} to {opacity:1; transform:none;} }
+
+    form {
+      max-width: 780px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(245,197,24,0.3);
+      border-radius: 14px;
+      padding: 2.2rem;
+      box-shadow: 0 0 30px rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 1s ease;
+    }
+
+    @keyframes fadeInUp { from {opacity:0; transform:translateY(25px);} to {opacity:1; transform:none;} }
+
+    label {
+      color: var(--gold);
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .form-select, .form-control {
+      background-color: rgba(255,255,255,0.10);
+      border: 1px solid rgba(245,197,24,0.3);
+      color: var(--ink);
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+    }
+
+    .form-select:focus, .form-control:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 8px rgba(245,197,24,0.4);
+      background-color: rgba(255,255,255,0.15);
+      color: var(--ink);
+    }
+
+    select option {
+      background-color: #0d1324;
+      color: var(--ink);
+    }
+
+    select option:hover, select option:checked {
+      background-color: var(--gold);
+      color: #000;
+    }
+
+    ::placeholder {
+      color: #ccc !important;
+      opacity: 1 !important;
+    }
+
+    .btn-cinema {
+      background: linear-gradient(45deg, #ff004d, #a700ff);
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      text-transform: uppercase;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      border-radius: 8px;
+      padding: 10px 16px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .btn-cinema:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 25px rgba(245,197,24,0.6);
+    }
+
+    .text-muted {
+      color: #cfcfcf !important;
+      font-size: 0.9rem;
+    }
+
+    .alert {
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <%- include('partials/header_employe', { currentUser }) %>
+  </header>
+
+  <main class="container py-5">
+    <h1 class="text-cinema">🏛️ Créer une nouvelle salle</h1>
+
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success text-center fw-bold mb-4" role="alert">
+        ✅ <%= success[0] %>
+      </div>
+    <% } %>
+
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger text-center fw-bold mb-4" role="alert">
+        ⚠️ <%= error[0] %>
+      </div>
+    <% } %>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="alert alert-danger text-center fw-bold mb-4" role="alert">
+        ⚠️ <%= errorMessage %>
+      </div>
+    <% } %>
+
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+      <div class="alert alert-success text-center fw-bold mb-4" role="alert">
+        ✅ <%= successMessage %>
+      </div>
+    <% } %>
+
+    <form method="POST" action="/intranet/create/salle">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <!-- CINÉMA -->
+      <div class="mb-3">
+        <label for="id_cinema" class="form-label">🎥 Cinéma</label>
+        <select id="id_cinema" name="id_cinema" class="form-select" required>
+          <option value="">-- Sélectionner un cinéma --</option>
+          <% cinemas.forEach(c => { %>
+            <option value="<%= c.id_cinema %>" <%= old && old.id_cinema == c.id_cinema ? "selected" : "" %>>
+              <%= c.nom_cinema %> — <%= c.ville %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- NOM DE LA SALLE -->
+      <div class="mb-3">
+        <label for="nom_salle" class="form-label">🏷️ Nom de la salle</label>
+        <input type="text" id="nom_salle" name="nom_salle"
+               class="form-control" required
+               value="<%= old?.nom_salle || '' %>"
+               placeholder="Ex : Salle Lumière">
+      </div>
+
+      <!-- CAPACITÉ -->
+      <div class="mb-3">
+        <label for="capacite" class="form-label">👥 Capacité (nombre de sièges)</label>
+        <input type="number" id="capacite" name="capacite"
+               class="form-control" required min="10" max="1000"
+               value="<%= old?.capacite || '' %>">
+        <small class="text-muted">La capacité doit correspondre au nombre total de sièges physiques dans la salle.</small>
+      </div>
+
+      <!-- QUALITÉ DE PROJECTION -->
+      <div class="mb-3">
+        <label for="qualite_projection" class="form-label">📽️ Qualité de projection</label>
+        <select id="qualite_projection" name="qualite_projection" class="form-select" required>
+          <option value="">-- Choisir la qualité --</option>
+          <% qualites.forEach(q => { %>
+            <option value="<%= q %>" <%= old && old.qualite_projection === q ? "selected" : "" %>>
+              <%= q %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- SOUMISSION -->
+      <button type="submit" class="btn btn-cinema w-100 mt-3">
+        <i class="fa-solid fa-circle-plus me-2"></i>Créer la salle
+      </button>
+    </form>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener("load", () => document.body.classList.add("loaded"));
+  </script>
+</body>
+</html>

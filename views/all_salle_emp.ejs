@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Toutes les salles – Cinéphoria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --gold-light: #ffd84a;
+      --bg1: #0a0f1f;
+      --bg2: #121829;
+      --ink: #e4e4e4;
+    }
+
+    body {
+      background: radial-gradient(circle at center, var(--bg2) 0%, var(--bg1) 100%);
+      color: var(--ink);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 1s ease;
+      min-height: 100vh;
+    }
+    body.loaded { opacity: 1; }
+
+    h1.text-cinema {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(245,197,24,0.6);
+      text-align: center;
+      margin-bottom: 1.8rem;
+      letter-spacing: 1px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    #searchInput {
+      max-width: 420px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(245,197,24,0.25);
+      color: var(--ink);
+      text-align: center;
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    #searchInput:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(245,197,24,0.4);
+      outline: none;
+      transform: scale(1.03);
+    }
+
+    .btn-cinema {
+      background-color: var(--gold);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 0.6rem 1.2rem;
+      transition: all 0.3s ease;
+    }
+    .btn-cinema:hover {
+      background-color: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(245,197,24,0.5);
+    }
+
+    .btn-outline-gold {
+      border: 1px solid rgba(245,197,24,0.6);
+      color: var(--ink);
+      transition: all 0.3s ease;
+    }
+    .btn-outline-gold:hover {
+      background-color: var(--gold);
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(245,197,24,0.5);
+    }
+
+    .card-cinema {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(245,197,24,0.25);
+      border-radius: 14px;
+      padding: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+      color: var(--ink);
+      position: relative;
+      overflow: hidden;
+    }
+
+.card-cinema::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: radial-gradient(circle at top left, rgba(245,197,24,0.1), transparent 60%);
+  transform: rotate(25deg);
+  pointer-events: none; /* ✅ Empêche de bloquer les clics */
+  z-index: 0; /* S’assure que le décor reste derrière le contenu */
+}
+
+.card-cinema * {
+  position: relative;
+  z-index: 1; /* ✅ Garde le contenu (texte, boutons) au-dessus */
+}
+
+
+    .card-cinema:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 30px rgba(245,197,24,0.25);
+    }
+
+    .card-title {
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .text-muted {
+      color: #aaa !important;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 2rem 0;
+      color: #999;
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(245,197,24,0.15);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <%- include('partials/header_employe', { currentUser }) %>
+  </header>
+
+  <main class="container py-5">
+    <h1 class="text-cinema">🏛️ Toutes les Salles</h1>
+
+    <!-- 🔧 Barre d’outils -->
+    <div class="toolbar">
+      <input type="text" id="searchInput" class="form-control"
+             placeholder="🔎 Rechercher une salle, un cinéma ou une qualité...">
+      <a href="/intranet/salle/createform" class="btn btn-cinema">
+        ➕ Ajouter une salle
+      </a>
+    </div>
+
+    <!-- 🔔 Messages -->
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success text-center fw-bold mb-4" role="alert">
+        ✅ <%= success[0] %>
+      </div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger text-center fw-bold mb-4" role="alert">
+        ⚠️ <%= error[0] %>
+      </div>
+    <% } %>
+
+    <!-- 🪑 Liste des salles -->
+    <div class="row g-4" id="salleContainer">
+      <% salles.forEach(salle => { %>
+        <div class="col-md-6 col-lg-4 salle-card">
+          <div class="card card-cinema h-100">
+            <div class="card-body">
+              <h5 class="card-title">
+                🎬 <%= salle.nom_salle %>
+              </h5>
+              <p class="mb-1"><strong>💺 Capacité :</strong> <%= salle.capacite %> places</p>
+              <p class="mb-1"><strong>📽️ Qualité :</strong> <%= salle.qualite_projection || '—' %></p>
+              <p class="mb-1"><strong>🏢 Cinéma ID :</strong> <%= salle.id_cinema %></p>
+              <p class="text-muted mt-2">ID salle : <%= salle.id_salle %></p>
+            </div>
+
+            <div class="card-footer bg-transparent border-0 text-center mt-auto">
+              <a href="/intranet/salles/<%= salle.id_salle %>/edit" class="btn btn-cinema btn-sm me-2">
+                ✏️ Modifier
+              </a>
+              <a href="/intranet/salles/<%= salle.id_salle %>" class="btn btn-outline-gold btn-sm">
+                🔍 Détails
+              </a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if (salles.length === 0) { %>
+      <p class="text-center mt-5 text-muted">
+        Aucune salle enregistrée pour le moment.
+      </p>
+    <% } %>
+  </main>
+
+  <footer>
+    <p>© <%= new Date().getFullYear() %> Cinéphoria – Interface Employé</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ✨ Transition d'apparition
+    window.addEventListener("load", () => document.body.classList.add("loaded"));
+
+    // 🔍 Recherche dynamique
+    const input = document.getElementById("searchInput");
+    input.addEventListener("keyup", () => {
+      const query = input.value.toLowerCase();
+      document.querySelectorAll(".salle-card").forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(query) ? "" : "none";
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Supprimer des séances – Cinéphoria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --bg1: #0a0f1f;
+      --ink: #e4e4e4;
+    }
+
+    body {
+      background-color: var(--bg1);
+      color: var(--ink);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 1s ease;
+      min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    }
+    main { flex: 1; }
+    body.loaded { opacity: 1; }
+
+    h1.text-cinema {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(245,197,24,0.6);
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .card-cinema {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(245,197,24,0.25);
+      border-radius: 14px;
+      padding: 1.2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+      color: var(--ink);
+    }
+
+    .card-cinema:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(245,197,24,0.25);
+    }
+
+    .btn-cinema {
+      background-color: var(--gold);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-cinema:hover {
+      background-color: #ffd84a;
+      transform: translateY(-2px);
+      box-shadow: 0 0 10px rgba(245,197,24,0.5);
+    }
+
+    .btn-outline-danger {
+      border: 1px solid rgba(245,197,24,0.5);
+      color: var(--ink);
+    }
+
+    .btn-outline-danger:hover {
+      background-color: crimson;
+      color: #fff;
+      border-color: crimson;
+    }
+
+    #searchInput {
+      max-width: 420px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(245,197,24,0.25);
+      color: var(--ink);
+      text-align: center;
+      border-radius: 6px;
+      margin-bottom: 40px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    #searchInput:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 8px rgba(245,197,24,0.4);
+      outline: none;
+    }
+
+    .text-muted {
+      color: #aaa !important;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <%- include('partials/header_employe', { currentUser }) %>
+  </header>
+
+  <main class="container py-5">
+    <h1 class="text-cinema">🗑️ Supprimer des séances</h1>
+
+    <!-- 🔍 Barre de recherche -->
+    <div class="text-center">
+      <input type="text" id="searchInput" class="form-control mx-auto"
+             placeholder="🔎 Rechercher un film, un cinéma ou une salle...">
+    </div>
+
+    <!-- 🔔 Messages -->
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success text-center fw-bold mb-4" role="alert">
+        ✅ <%= success[0] %>
+      </div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger text-center fw-bold mb-4" role="alert">
+        ⚠️ <%= error[0] %>
+      </div>
+    <% } %>
+
+    <!-- 📋 Liste des séances -->
+    <div class="row g-4" id="seanceContainer">
+      <% seances.forEach(seance => { %>
+        <div class="col-md-6 col-lg-4 seance-card">
+          <div class="card card-cinema h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-2" style="color:var(--gold); font-family:'Cinzel', serif;">
+                🎞️ <%= seance.film_titre %>
+              </h5>
+              <p class="mb-1 text-muted">
+                🏛️ <%= seance.nom_cinema %> — <%= seance.nom_salle %>
+              </p>
+              <p class="mb-1"><strong>📅 Date :</strong>
+                <%= new Date(seance.date_seance).toLocaleDateString('fr-FR') %>
+              </p>
+              <p class="mb-1"><strong>🕓 Heure :</strong>
+                <%= seance.heure_debut %> – <%= seance.heure_fin %>
+              </p>
+              <p class="mb-1"><strong>💰 Prix :</strong> <%= seance.prix %> €</p>
+              <p class="mb-1"><strong>📽️ Qualité :</strong> <%= seance.qualite_projection || '—' %></p>
+            </div>
+
+            <div class="card-footer bg-transparent border-0 text-center mt-auto">
+              <form action="/intranet/seances/<%= seance.id_seance %>/delete" method="POST" onsubmit="return confirmDelete('<%= seance.film_titre %>');">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                  🗑️ Supprimer
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if (seances.length === 0) { %>
+      <p class="text-center mt-5">Aucune séance enregistrée pour le moment.</p>
+    <% } %>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener("load", () => document.body.classList.add("loaded"));
+
+    // 🔍 Filtrage en direct
+    const input = document.getElementById("searchInput");
+    input.addEventListener("keyup", () => {
+      const query = input.value.toLowerCase();
+      document.querySelectorAll(".seance-card").forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(query) ? "" : "none";
+      });
+    });
+
+    // 🔒 Confirmation avant suppression
+    function confirmDelete(filmTitre) {
+      return confirm(`⚠️ Êtes-vous sûr de vouloir supprimer la séance du film "${filmTitre}" ?`);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title || 'Liste des films' %> - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="/css/styles.css" rel="stylesheet" />
+  <style>
+    :root { --gold:#f5c518; --bg-2:rgba(12,18,38,.72); --stroke:rgba(245,197,24,.18); --text:#eaeaea; --blur:12px; --radius:18px; --muted:#a8b0c2; }
+    body { background: radial-gradient(1100px 680px at 20% -10%, #121a35 0%, #0a0f1f 45%, #05070f 100%); color:var(--text); }
+    .admin-main{ padding-top:96px; padding-bottom:80px; }
+    .glass{ background: var(--bg-2); border:1px solid var(--stroke); border-radius: var(--radius); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); }
+    .admin-badge { background: rgba(245,197,24,.14); color:var(--gold); border:1px solid rgba(245,197,24,.35); }
+    .muted{ color: var(--muted); }
+    .table>:not(caption)>*>*{ background-color: transparent; }
+    .btn-gold{ background: linear-gradient(180deg,#f5c518,#d1a60a); color:#111; border:none; }
+    .searchbar{ max-width: 520px; }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="container admin-main">
+    <!-- Topbar -->
+    <div class="glass p-3 d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-film me-2" style="color:var(--gold)"></i>
+        <h1 class="h5 m-0"><%= title || 'Liste des films' %></h1>
+        <span class="badge admin-badge"><%= (films?.length ?? 0) %> éléments</span>
+      </div>
+      <div class="d-flex gap-2">
+        <form class="searchbar d-none d-md-flex" role="search" onsubmit="return false">
+          <input class="form-control form-control-sm" id="q" placeholder="Rechercher un titre…" />
+        </form>
+        <a class="btn btn-gold btn-sm" href="/admin/films/new"><i class="fa-solid fa-plus me-1"></i> Nouveau</a>
+        <a class="btn btn-outline-light btn-sm" href="/admin"><i class="fa-solid fa-gauge-high me-1"></i> Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Flash -->
+    <div aria-live="polite" aria-atomic="true" class="mb-3">
+      <% if (typeof messages !== 'undefined') { %>
+        <% if (messages.success) { %>
+          <div class="alert alert-success glass alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            <%= Array.isArray(messages.success) ? messages.success.join('<br>') : messages.success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+          </div>
+        <% } %>
+        <% if (messages.warning || messages.info) { %>
+          <div class="alert alert-warning glass alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            <%= (Array.isArray(messages.warning) ? messages.warning.join('<br>') : messages.warning) || messages.info %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+          </div>
+        <% } %>
+        <% if (messages.error) { %>
+          <div class="alert alert-danger glass alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            <%= Array.isArray(messages.error) ? messages.error.join('<br>') : messages.error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+
+    <!-- Table -->
+    <div class="glass p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0" id="filmsTable">
+          <thead>
+            <tr>
+              <th style="width:80px;">ID</th>
+              <th>Titre</th>
+              <th style="width:160px;">Genre</th>
+              <th style="width:120px;">Âge min.</th>
+              <th style="width:120px;">Cœur</th>
+              <th style="width:260px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (films && films.length) { %>
+              <% films.forEach(film => { %>
+                <tr>
+                  <td>#<%= film.id_film %></td>
+                  <td class="fw-semibold"><%= film.titre %></td>
+                  <td><%= film.genre ?? '—' %></td>
+                  <td><%= film.age_minimum ?? '—' %></td>
+                  <td><%= film.label_coup_de_coeur ? 'Oui' : 'Non' %></td>
+                  <td class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-sm btn-outline-light" href="/admin/films/<%= film.id_film %>">
+                      <i class="fa-solid fa-eye"></i> Voir
+                    </a>
+                    <a class="btn btn-sm btn-warning" href="/admin/films/<%= film.id_film %>/edit">
+                      <i class="fa-solid fa-pen-to-square"></i> Modifier
+                    </a>
+
+                    <!-- SUPPRESSION (method-override en DELETE) -->
+                    <form method="POST"
+                          action="/admin/films/<%= film.id_film %>?_method=DELETE"
+                          onsubmit="return confirm('Supprimer définitivement « <%= (film.titre||'').replace(/\"/g,'&quot;').replace(/'/g,'&#39;') %> » ?');"
+                          class="d-inline">
+                      <button class="btn btn-sm btn-outline-danger" type="submit">
+                        <i class="fa-solid fa-trash"></i> Supprimer
+                      </button>
+                    </form>
+
+                    <!-- ✅ Si tu préfères SANS method-override, commente le formulaire ci-dessus
+                         et décommente celui-ci + garde la route POST /films/:id/delete
+                    <form method="POST"
+                          action="/admin/films/<%= film.id_film %>/delete"
+                          onsubmit="return confirm('Supprimer définitivement « <%= (film.titre||'').replace(/\"/g,'&quot;').replace(/'/g,'&#39;') %> » ?');"
+                          class="d-inline">
+                      <button class="btn btn-sm btn-outline-danger" type="submit">
+                        <i class="fa-solid fa-trash"></i> Supprimer
+                      </button>
+                    </form>
+                    -->
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="6" class="text-center muted py-4">Aucun film trouvé</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener("load", () => { document.body.classList.add("loaded"); });
+    // Mini recherche côté client (optionnel, garde ton "ressenti" UX)
+    (function(){
+      const q = document.getElementById('q');
+      const table = document.getElementById('filmsTable');
+      if(!q || !table) return;
+      q.addEventListener('input', () => {
+        const term = q.value.trim().toLowerCase();
+        table.querySelectorAll('tbody tr').forEach(tr => {
+          const title = (tr.children[1]?.textContent || '').toLowerCase();
+          tr.style.display = title.includes(term) ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

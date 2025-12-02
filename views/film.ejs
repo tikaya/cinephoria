@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Films - Cinéphoria</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    :root {
+      --gold: #f5c518;
+      --gold-glow: rgba(245, 197, 24, 0.4);
+      --purple: #a700ff;
+      --pink: #ff004d;
+      --dark-bg: #0a0f1f;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #1a2341, #0a0f1f 50%, #000000);
+      background-size: 100% 200%;
+      animation: gradientFlow 20s ease infinite;
+      color: #eaeaea;
+      font-family: 'Poppins', sans-serif;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Particules flottantes */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20% 30%, rgba(245,197,24,0.15), transparent),
+        radial-gradient(2px 2px at 60% 70%, rgba(167,0,255,0.1), transparent),
+        radial-gradient(1px 1px at 50% 50%, rgba(255,0,77,0.1), transparent),
+        radial-gradient(1px 1px at 80% 10%, rgba(245,197,24,0.1), transparent);
+      background-size: 200% 200%;
+      background-position: 0% 0%;
+      animation: particlesFloat 30s ease infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes particlesFloat {
+      0%, 100% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+    }
+
+    body.loaded { opacity: 1; }
+
+    @keyframes gradientFlow {
+      0% { background-position: 50% 0%; }
+      50% { background-position: 50% 100%; }
+      100% { background-position: 50% 0%; }
+    }
+
+    header, footer {
+      width: 100%;
+      background: rgba(10, 15, 31, 0.95);
+      backdrop-filter: blur(20px);
+      text-align: center;
+      padding: 18px 0;
+      color: #eaeaea;
+      font-size: 1rem;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.7);
+      position: relative;
+      z-index: 10;
+    }
+
+    footer {
+      margin-top: auto;
+      border-top: 1px solid rgba(245,197,24,0.15);
+    }
+
+    main {
+      flex: 1;
+      padding: 20px 0 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Titre principal */
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #f5c518 0%, #ffdd57 50%, #f5c518 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 20px var(--gold-glow)) drop-shadow(0 0 40px rgba(245,197,24,0.2));
+      text-align: center;
+      margin: 50px auto 40px;
+      animation: fadeInDown 1.2s ease, titleGlow 3s ease-in-out infinite;
+      letter-spacing: 2px;
+      padding: 0 20px;
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { filter: drop-shadow(0 0 20px var(--gold-glow)) drop-shadow(0 0 40px rgba(245,197,24,0.2)); }
+      50% { filter: drop-shadow(0 0 30px var(--gold-glow)) drop-shadow(0 0 60px rgba(245,197,24,0.4)); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section de filtres */
+    .filter-section {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 2px solid rgba(245,197,24,0.3);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      padding: 2rem;
+      margin-bottom: 3rem;
+      animation: fadeInUp 0.8s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .filter-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(245,197,24,0.05), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .filter-section .form-label {
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-section .form-label i {
+      font-size: 1.1rem;
+    }
+
+    .filter-section .form-select,
+    .filter-section .form-control {
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(245,197,24,0.3);
+      border-radius: 12px;
+      color: #e9ecef;
+      padding: 0.85rem 1rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .filter-section .form-select:focus,
+    .filter-section .form-control:focus {
+      background: rgba(255,255,255,0.12);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(245,197,24,0.3);
+      color: #fff;
+      outline: none;
+    }
+
+    .filter-section .form-select option {
+      background: #1a1f35;
+      color: #e9ecef;
+    }
+
+    /* Carte de film premium */
+    .cinema-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 2px solid rgba(245,197,24,0.25);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      color: #fff;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeInUp 0.8s ease forwards;
+      opacity: 0;
+      overflow: hidden;
+      position: relative;
+      height: 100%;
+    }
+
+    .cinema-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(245,197,24,0.08) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .cinema-card:hover::before {
+      opacity: 1;
+      animation: rotateGlow 4s linear infinite;
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .cinema-card.visible {
+      opacity: 1;
+    }
+
+    .cinema-card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 
+        0 20px 60px rgba(245,197,24,0.4),
+        0 0 80px rgba(245,197,24,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      border-color: rgba(245,197,24,0.6);
+    }
+
+    .cinema-card img {
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .cinema-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .cinema-card .card-body {
+      padding: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .cinema-card h5 {
+      color: var(--gold);
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-shadow: 0 2px 12px rgba(245,197,24,0.5);
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    .film-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0.75rem;
+      color: #d1d5db;
+      font-size: 0.95rem;
+    }
+
+    .film-info i {
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+
+    .film-description {
+      color: #c7cad1;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .film-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 8px rgba(245,197,24,0.3);
+    }
+
+    .film-note i {
+      animation: starPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes starPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Badge coup de cœur */
+    .badge-heart {
+      background: linear-gradient(135deg, #ff004d, #c7007a);
+      color: #fff;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(255,0,77,0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 1rem;
+      animation: heartBeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Bouton premium */
+    .btn-cinema {
+      background: linear-gradient(135deg, #ff004d 0%, #c7007a 50%, #a700ff 100%);
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 14px;
+      padding: 12px 24px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      box-shadow: 0 4px 15px rgba(255,0,77,0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .btn-cinema::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-cinema:hover::before {
+      left: 100%;
+    }
+
+    .btn-cinema:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255,0,77,0.6), 0 0 40px rgba(167,0,255,0.4);
+      background: linear-gradient(135deg, #ff1a5e 0%, #d6008f 50%, #b800ff 100%);
+    }
+
+    /* Message vide */
+    .empty-message {
+      text-align: center;
+      padding: 4rem 2rem;
+      animation: fadeInUp 1s ease;
+    }
+
+    .empty-message i {
+      font-size: 4rem;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .empty-message p {
+      font-size: 1.3rem;
+      color: #d1d5db;
+    }
+
+    /* Scroll to top button */
+    #scrollBtn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 56px;
+      height: 56px;
+      border: 2px solid rgba(245,197,24,0.3);
+      border-radius: 50%;
+      display: none;
+      cursor: pointer;
+      z-index: 1001;
+      color: #fff;
+      background: linear-gradient(135deg, #ff004d, #a700ff);
+      box-shadow: 0 4px 20px rgba(245,197,24,0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 1.3rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #scrollBtn:hover {
+      transform: scale(1.2) rotate(360deg);
+      box-shadow: 0 8px 35px rgba(255,0,77,0.8), 0 0 60px rgba(167,0,255,0.6);
+      border-color: rgba(245,197,24,0.6);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 991.98px) {
+      .filter-section {
+        padding: 1.5rem;
+      }
+
+      .cinema-card img {
+        height: 300px;
+      }
+
+      h1 {
+        margin: 30px auto 30px;
+      }
+    }
+
+    @media (max-width: 767.98px) {
+      .filter-section {
+        padding: 1.25rem;
+      }
+
+      .cinema-card img {
+        height: 250px;
+      }
+
+      .cinema-card h5 {
+        font-size: 1.3rem;
+      }
+
+      main {
+        padding: 15px 0 40px;
+      }
+
+      #scrollBtn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .filter-section {
+        padding: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .cinema-card img {
+        height: 220px;
+      }
+
+      .cinema-card .card-body {
+        padding: 1.25rem;
+      }
+
+      .btn-cinema {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+      }
+    }
+
+    /* Animation échelonnée des cartes */
+    .cinema-card:nth-child(1) { animation-delay: 0.1s; }
+    .cinema-card:nth-child(2) { animation-delay: 0.2s; }
+    .cinema-card:nth-child(3) { animation-delay: 0.3s; }
+    .cinema-card:nth-child(4) { animation-delay: 0.4s; }
+    .cinema-card:nth-child(5) { animation-delay: 0.5s; }
+    .cinema-card:nth-child(6) { animation-delay: 0.6s; }
+  </style>
+</head>
+<body>
+  <header>
+    <%- include('partials/header') %>
+  </header>
+
+  <main class="container">
+    <h1><i class="fas fa-film me-3"></i>Découvrez nos Films</h1>
+
+    <!-- Section de filtres premium -->
+    <form method="GET" action="/films" class="filter-section">
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          <label for="cinemaId" class="form-label">
+            <i class="fas fa-building"></i> Cinéma
+          </label>
+          <select name="cinemaId" id="cinemaId" class="form-select">
+            <option value="">Tous les cinémas</option>
+            <% (cinemas || []).forEach(cinema => { %>
+              <option value="<%= cinema.id_cinema %>" <%= selectedCinema == cinema.id_cinema ? 'selected' : '' %>>
+                <%= cinema.nom_cinema %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label for="genre" class="form-label">
+            <i class="fas fa-theater-masks"></i> Genre
+          </label>
+          <select name="genre" id="genre" class="form-select">
+            <option value="">Tous les genres</option>
+            <% (genres || []).forEach(g => { %>
+              <option value="<%= g %>" <%= selectedGenre == g ? 'selected' : '' %>><%= g %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label for="date" class="form-label">
+            <i class="fas fa-calendar-alt"></i> Date
+          </label>
+          <input type="date" name="date" id="date" 
+                 class="form-control" 
+                 value="<%= selectedDate || '' %>">
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-cinema btn-lg">
+            <i class="fas fa-search me-2"></i> Rechercher
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Grille des films -->
+    <% if (films && films.length > 0) { %>
+      <div class="row g-4">
+        <% films.forEach(film => { %>
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card cinema-card">
+              <img src="<%= film.affiche_url %>" class="card-img-top" alt="Affiche de <%= film.titre %>" loading="lazy">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">
+                  <i class="fas fa-film me-2"></i><%= film.titre %>
+                </h5>
+
+                <div class="film-info">
+                  <i class="fas fa-user-shield"></i>
+                  <span>Âge minimum : <strong><%= film.age_minimum %>+</strong></span>
+                </div>
+
+                <p class="film-description"><%= film.description %></p>
+
+                
+
+                <% if (film.label_coup_de_coeur) { %>
+                  <div class="badge-heart">
+                    ❤️ Coup de cœur
+                  </div>
+                <% } %>
+
+                <a href="/films/<%= film.id_film %>" class="btn btn-cinema mt-auto">
+  <i class="fas fa-info-circle me-2"></i> Voir la fiche
+</a>
+
+
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-message">
+        <i class="fas fa-film-slash"></i>
+        <p>Aucun film trouvé pour vos critères de recherche.</p>
+        <p class="text-muted mt-2">Essayez de modifier vos filtres !</p>
+      </div>
+    <% } %>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <!-- Bouton retour en haut -->
+  <button id="scrollBtn" aria-label="Retour en haut">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Apparition progressive des cartes
+    document.addEventListener("DOMContentLoaded", () => {
+      const cards = document.querySelectorAll(".cinema-card");
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      cards.forEach(card => observer.observe(card));
+    });
+
+    // Fondu d'apparition du body
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+    });
+
+    // Bouton scroll to top
+    const scrollBtn = document.getElementById("scrollBtn");
+    
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        scrollBtn.style.display = "flex";
+      } else {
+        scrollBtn.style.display = "none";
+      }
+    });
+
+    scrollBtn.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
+
+    // Amélioration UX : Reset des filtres
+    const form = document.querySelector('.filter-section');
+    if (form) {
+      // Sauvegarde des filtres dans localStorage pour persistance
+      form.addEventListener('submit', () => {
+        const formData = new FormData(form);
+        const filters = Object.fromEntries(formData);
+        localStorage.setItem('filmFilters', JSON.stringify(filters));
+      });
+    }
+  </script>
+</body>
+</html>

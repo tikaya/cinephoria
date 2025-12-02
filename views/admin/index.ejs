@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= (typeof title !== 'undefined' && title) ? title : 'Administration' %> - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="/css/styles.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --gold-soft: #f2d46a;
+      --gold-glow: rgba(245, 197, 24, 0.4);
+      --bg-dark: #0a0f1e;
+      --bg-card: rgba(15, 22, 42, 0.85);
+      --border: rgba(245, 197, 24, 0.15);
+      --border-hover: rgba(245, 197, 24, 0.5);
+      --text: #e6ebff;
+      --text-muted: #8892b0;
+      --gradient-gold: linear-gradient(135deg, var(--gold) 0%, #ffd700 50%, var(--gold-soft) 100%);
+      --shadow-gold: 0 0 30px rgba(245, 197, 24, 0.15);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    body.cinephoria-admin {
+      min-height: 100vh;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 197, 24, 0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(99, 102, 241, 0.06), transparent),
+        linear-gradient(180deg, #0a0f1e 0%, #0d1526 100%);
+      color: var(--text);
+      font-family: "Poppins", system-ui, sans-serif;
+    }
+
+    /* ========== HERO ========== */
+    .admin-hero {
+      position: relative;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .admin-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-gold);
+    }
+
+    .title-cine {
+      font-family: "Cinzel", serif;
+      font-size: 2rem;
+      font-weight: 700;
+      background: var(--gradient-gold);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-text {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .welcome-text strong {
+      color: var(--gold);
+    }
+
+    /* ========== BOUTONS HERO ========== */
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .btn-hero-primary {
+      background: var(--gradient-gold);
+      color: #0a0f1e;
+      border: none;
+    }
+
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(245, 197, 24, 0.3);
+      color: #0a0f1e;
+    }
+
+    .btn-hero-outline {
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid var(--border-hover);
+    }
+
+    .btn-hero-outline:hover {
+      background: rgba(245, 197, 24, 0.1);
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* ========== SECTION TITRE ========== */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .section-title i {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    /* ========== GRILLE STATS ========== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ========== CARTES ========== */
+    .admin-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-card);
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .admin-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--gradient-gold);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .admin-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-hover);
+      box-shadow: 
+        var(--shadow-card),
+        0 12px 24px rgba(245, 197, 24, 0.08);
+    }
+
+    .admin-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(245, 197, 24, 0.15), rgba(245, 197, 24, 0.05));
+      border: 1px solid rgba(245, 197, 24, 0.2);
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .card-icon {
+      font-size: 1.25rem;
+      color: var(--gold);
+    }
+
+    .card-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .card-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .card-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .card-arrow {
+      position: absolute;
+      right: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: all 0.25s ease;
+    }
+
+    .admin-card:hover .card-arrow {
+      opacity: 1;
+      right: 1rem;
+      color: var(--gold);
+    }
+
+    /* ========== CARTE SPÉCIALE (Dashboard) ========== */
+    .card-special {
+      background: linear-gradient(135deg, rgba(245, 197, 24, 0.06), rgba(245, 197, 24, 0.02));
+      border-color: rgba(245, 197, 24, 0.2);
+    }
+
+    .badge-api {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.3rem 0.6rem;
+      background: var(--gradient-gold);
+      color: #0a0f1e;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 50px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      width: fit-content;
+    }
+
+    /* ========== CARTE LOGOUT ========== */
+    .card-logout {
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .card-logout:hover {
+      border-color: rgba(239, 68, 68, 0.4);
+      box-shadow: 
+        var(--shadow-card),
+        0 12px 24px rgba(239, 68, 68, 0.08);
+    }
+
+    .card-logout .card-icon-wrapper {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .card-logout .card-icon {
+      color: #ef4444;
+    }
+
+    .card-logout::before {
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+    }
+
+    .card-logout:hover .card-arrow {
+      color: #ef4444;
+    }
+
+    /* ========== QUICK ACTIONS ========== */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .action-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s ease;
+    }
+
+    .action-card:hover {
+      border-color: var(--border-hover);
+      background: rgba(245, 197, 24, 0.05);
+      color: var(--text);
+    }
+
+    .action-card i {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .action-card span {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+      .admin-hero {
+        padding: 1.5rem 1.25rem;
+      }
+
+      .title-cine {
+        font-size: 1.5rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="cinephoria-admin">
+
+<%- include('../partials/header') %>
+
+<main class="container py-4">
+
+  <% const user = currentUser || null; %>
+  <% const s = stats || {}; %>
+
+  <!-- ====== HERO ====== -->
+  <section class="admin-hero">
+    <div class="row align-items-center">
+      <div class="col-lg-8 mb-3 mb-lg-0">
+        <h1 class="title-cine">
+          <i class="fa-solid fa-shield-halved me-2"></i>Administration
+        </h1>
+        <p class="welcome-text">
+          Bienvenue <strong><%= (user && user.username) || 'Administrateur' %></strong>, 
+          gérez votre cinéma en toute simplicité.
+        </p>
+      </div>
+      <div class="col-lg-4">
+        <div class="hero-actions justify-content-lg-end">
+          <a href="/" class="btn-hero btn-hero-primary">
+            <i class="fa-solid fa-house"></i> Accueil
+          </a>
+          <a href="/admin/api/dashboard/weekly-films" target="_blank" class="btn-hero btn-hero-outline">
+            <i class="fa-solid fa-code"></i> API JSON
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== GESTION ====== -->
+  <div class="section-title">
+    <i class="fa-solid fa-folder-open"></i>
+    <h2>Gestion du contenu</h2>
+  </div>
+
+  <section class="stats-grid">
+
+    <!-- Films -->
+    <a href="/admin/films" class="admin-card">
+      <div class="card-header">
+        <div class="card-icon-wrapper">
+          <i class="fa-solid fa-film card-icon"></i>
+        </div>
+        <div class="card-info">
+          <span class="card-title">Films</span>
+          <% if (s.films) { %>
+            <span class="card-value"><%= s.films %></span>
+          <% } %>
+        </div>
+      </div>
+      <span class="card-label">Gérer le catalogue de films</span>
+      <i class="fa-solid fa-chevron-right card-arrow"></i>
+    </a>
+
+    <!-- Séances -->
+    <a href="/admin/seances" class="admin-card">
+      <div class="card-header">
+        <div class="card-icon-wrapper">
+          <i class="fa-solid fa-calendar-days card-icon"></i>
+        </div>
+        <div class="card-info">
+          <span class="card-title">Séances</span>
+          <% if (s.seances) { %>
+            <span class="card-value"><%= s.seances %></span>
+          <% } %>
+        </div>
+      </div>
+      <span class="card-label">Planifier les projections</span>
+      <i class="fa-solid fa-chevron-right card-arrow"></i>
+    </a>
+
+    <!-- Salles -->
+    <a href="/admin/salles" class="admin-card">
+      <div class="card-header">
+        <div class="card-icon-wrapper">
+          <i class="fa-solid fa-door-open card-icon"></i>
+        </div>
+        <div class="card-info">
+          <span class="card-title">Salles</span>
+          <% if (s.salles) { %>
+            <span class="card-value"><%= s.salles %></span>
+          <% } %>
+        </div>
+      </div>
+      <span class="card-label">Configurer les salles</span>
+      <i class="fa-solid fa-chevron-right card-arrow"></i>
+    </a>
+
+    <!-- Employés -->
+    <a href="/admin/employes" class="admin-card">
+      <div class="card-header">
+        <div class="card-icon-wrapper">
+          <i class="fa-solid fa-users-gear card-icon"></i>
+        </div>
+        <div class="card-info">
+          <span class="card-title">Employés</span>
+          <% if (s.employes) { %>
+            <span class="card-value"><%= s.employes %></span>
+          <% } %>
+        </div>
+      </div>
+      <span class="card-label">Gérer les comptes staff</span>
+      <i class="fa-solid fa-chevron-right card-arrow"></i>
+    </a>
+
+  </section>
+
+  <!-- ====== OUTILS ====== -->
+  <div class="section-title">
+    <i class="fa-solid fa-wrench"></i>
+    <h2>Outils & Statistiques</h2>
+  </div>
+
+  <section class="stats-grid">
+
+    <!-- Dashboard -->
+    <a href="/admin/dashboard/stats/weekly-films" class="admin-card card-special">
+      <div class="card-header">
+        <div class="card-icon-wrapper">
+          <i class="fa-solid fa-chart-line card-icon"></i>
+        </div>
+        <div class="card-info">
+          <span class="card-title">Dashboard</span>
+          <span class="badge-api">
+            <i class="fa-solid fa-database"></i> MongoDB
+          </span>
+        </div>
+      </div>
+      <span class="card-label">Statistiques des 7 derniers jours</span>
+      <i class="fa-solid fa-chevron-right card-arrow"></i>
+    </a>
+
+    <!-- Déconnexion -->
+    <a href="/logout" class="admin-card card-logout">
+      <div class="card-header">
+        <div class="card-icon-wrapper">
+          <i class="fa-solid fa-right-from-bracket card-icon"></i>
+        </div>
+        <div class="card-info">
+          <span class="card-title">Déconnexion</span>
+        </div>
+      </div>
+      <span class="card-label">Fermer votre session</span>
+      <i class="fa-solid fa-chevron-right card-arrow"></i>
+    </a>
+
+  </section>
+
+  <!-- ====== ACTIONS RAPIDES ====== -->
+  <div class="section-title">
+    <i class="fa-solid fa-bolt"></i>
+    <h2>Actions rapides</h2>
+  </div>
+
+  <section class="quick-actions">
+    <a href="/admin/films/new" class="action-card">
+      <i class="fa-solid fa-plus"></i>
+      <span>Ajouter un film</span>
+    </a>
+    <a href="/admin/seances/new" class="action-card">
+      <i class="fa-solid fa-plus"></i>
+      <span>Créer une séance</span>
+    </a>
+    <a href="/admin/employes/new" class="action-card">
+      <i class="fa-solid fa-user-plus"></i>
+      <span>Nouvel employé</span>
+    </a>
+    <a href="/admin/salles/new" class="action-card">
+      <i class="fa-solid fa-plus"></i>
+      <span>Ajouter une salle</span>
+    </a>
+  </section>
+
+</main>
+
+<%- include('../partials/footer') %>
+</div>
+  <script>window.addEventListener('load', () => document.body.classList.add('loaded'));</script>
+</body>
+</html>

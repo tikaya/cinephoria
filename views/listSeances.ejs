@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= (typeof title !== 'undefined' && title) ? title : 'Séances' %> - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="/css/styles.css" rel="stylesheet" />
+  <style>
+    :root { --gold:#f5c518; --bg-2:rgba(12,18,38,.72); --stroke:rgba(245,197,24,.18); --text:#eaeaea; --blur:12px; --radius:18px; --muted:#a8b0c2; }
+    body { background: radial-gradient(1100px 680px at 20% -10%, #121a35 0%, #0a0f1f 45%, #05070f 100%); color:var(--text); }
+    .admin-main{ padding-top:96px; padding-bottom:80px; }
+    .glass{ background: var(--bg-2); border:1px solid var(--stroke); border-radius: var(--radius); backdrop-filter: blur(var(--blur)); }
+    .admin-badge { background: rgba(245,197,24,.14); color:var(--gold); border:1px solid rgba(245,197,24,.35); }
+    .btn-gold{ background: linear-gradient(180deg,#f5c518,#d1a60a); color:#111; border:none; }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="container admin-main">
+    <% 
+      // Garde-fous pour éviter toute ReferenceError
+      const list      = (typeof seances !== 'undefined' && Array.isArray(seances)) ? seances : [];
+      const msg       = (typeof messages !== 'undefined' && messages) ? messages : {};
+      const pageTitle = (typeof title !== 'undefined' && title) ? title : 'Séances';
+    %>
+
+    <div class="glass p-3 d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-calendar-days me-2" style="color:var(--gold)"></i>
+        <h1 class="h5 m-0"><%= pageTitle %></h1>
+        <span class="badge admin-badge"><%= list.length %> items</span>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-gold btn-sm" href="/admin/seances/new"><i class="fa-solid fa-plus me-1"></i> Nouveau</a>
+        <a class="btn btn-outline-light btn-sm" href="/admin"><i class="fa-solid fa-gauge-high me-1"></i> Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Flash -->
+    <div aria-live="polite" aria-atomic="true" class="mb-3">
+      <% if (msg.success) { %>
+        <div class="alert alert-success glass alert-dismissible fade show">
+          <%= Array.isArray(msg.success) ? msg.success.join('<br>') : msg.success %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+      <% if (msg.warning || msg.info) { %>
+        <div class="alert alert-warning glass alert-dismissible fade show">
+          <%= (Array.isArray(msg.warning) ? msg.warning.join('<br>') : msg.warning) || msg.info %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+      <% if (msg.error) { %>
+        <div class="alert alert-danger glass alert-dismissible fade show">
+          <%= Array.isArray(msg.error) ? msg.error.join('<br>') : msg.error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="glass p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Heure</th>
+              <th>Film</th>
+              <th>Salle</th>
+              <th>Prix</th>
+              <th style="width:260px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          <% if (list.length) { %>
+            <% list.forEach(s => { 
+                 const hDeb = (s.heure_debut || '').toString().slice(0,5);
+                 const hFin = (s.heure_fin   || '').toString().slice(0,5);
+                 const prix = (typeof s.prix === 'number') ? s.prix : (s.prix ? Number(s.prix) : null);
+            %>
+              <tr>
+                <td>#<%= s.id_seance %></td>
+                <td><%= s.date_seance %></td>
+                <td><%= hDeb %>–<%= hFin %></td>
+                <td><%= s.film_titre || s.titre || '—' %></td>
+                <td><%= s.nom_salle || '—' %></td>
+                <td><%= (prix != null && !Number.isNaN(prix)) ? prix.toFixed(2) + '€' : '—' %></td>
+                <td class="d-flex flex-wrap gap-2">
+                  <a class="btn btn-sm btn-warning" href="/admin/seances/<%= s.id_seance %>/edit">
+                    <i class="fa-solid fa-pen-to-square"></i> Éditer
+                  </a>
+                  <form method="POST" action="/admin/seances/<%= s.id_seance %>?_method=DELETE"
+                        onsubmit="return confirm('Supprimer définitivement la séance #<%= s.id_seance %> ?');"
+                        class="d-inline">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                      <i class="fa-solid fa-trash"></i> Supprimer
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr><td colspan="7" class="text-center text-muted py-4">Aucune séance</td></tr>
+          <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <!-- charge d’abord Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- puis ton JS inline dans un <script> séparé -->
+  <script>window.addEventListener('load', () => document.body.classList.add('loaded'));</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<hr class="my-4">
+<h5 class="mb-2"><i class="fa-solid fa-couch me-2 text-warning"></i> Concevoir les sièges</h5>
+<p class="text-secondary mb-2">
+  Sièges actuels : <strong><%= salle.nb_sieges %></strong> — Capacité : <strong><%= salle.capacite ?? '—' %></strong>
+</p>
+
+<form method="post" action="/admin/salles/<%= salle.id_salle %>/generate-seats" class="row g-2 align-items-end">
+  <div class="col-md-2">
+    <label class="form-label">Rangées</label>
+    <input type="number" min="1" step="1" class="form-control" name="rows" required>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Colonnes</label>
+    <input type="number" min="1" step="1" class="form-control" name="cols" required>
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Sièges PMR</label>
+    <input type="number" min="0" step="1" class="form-control" name="pmr_count" value="0">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Placement PMR</label>
+    <select name="pmr_mode" class="form-select">
+      <option value="none">— Aucun —</option>
+      <option value="front_block">Bloc 1ère rangée (A1..)</option>
+      <option value="front_sides">Extrémités 1ère rangée (A1, A{N}, …)</option>
+      <option value="list">Liste personnalisée</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Liste sièges (si “personnalisée”)</label>
+    <input type="text" class="form-control" name="pmr_list" placeholder="Ex: A1,A2,B1">
+    <small class="text-secondary">Format : A1, A2, B10…</small>
+  </div>
+
+  <div class="col-md-4 form-check mt-2">
+    <input class="form-check-input" type="checkbox" name="wipe" id="wipe">
+    <label class="form-check-label" for="wipe">Remplacer les sièges existants</label>
+  </div>
+
+  <div class="col-md-2 ms-auto">
+    <button class="btn btn-warning w-100">
+      <i class="fa-solid fa-grid-2 me-1"></i> Générer
+    </button>
+  </div>
+</form>

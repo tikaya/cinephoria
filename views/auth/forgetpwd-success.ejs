@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Email envoyé - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: radial-gradient(circle at 20% 30%, #1a1f36, #0a0f1f);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      color:white;
+      font-family:"Poppins", sans-serif;
+    }
+
+    .success-box {
+      background:rgba(255,255,255,0.12);
+      padding:3rem;
+      border-radius:20px;
+      border:2px solid rgba(245,197,24,0.3);
+      text-align:center;
+      box-shadow:0 0 40px rgba(245,197,24,0.25);
+    }
+
+    h1 { color:#f5c518; font-family:"Cinzel", serif; }
+
+    a {
+      color:#ffd966;
+      display:inline-block;
+      margin-top:1.5rem;
+      text-decoration:none;
+    }
+
+    a:hover { color:white; }
+  </style>
+</head>
+
+<body>
+
+<div class="success-box">
+  <h1>Email envoyé ✅</h1>
+  <% if (errorMessage) { %>
+  <div class="alert alert-danger" style="text-align:center;margin-top:15px;">
+    <%= errorMessage %>
+  </div>
+<% } %>
+
+  <p>
+    Si un compte est associé à cette adresse,  
+    un mot de passe temporaire vient de vous être transmis.
+  </p>
+  <a href="/login">Retour à la connexion</a>
+</div>
+
+</body>
+</html>

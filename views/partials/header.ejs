@@ -1,0 +1,89 @@
+<nav class="navbar navbar-expand-lg cinema-navbar shadow-custom">
+  <div class="container-fluid">
+
+    <!-- LOGO -->
+    <a class="navbar-brand cinema-logo fw-bold px-3 d-flex align-items-center" 
+       href="/" 
+       style="font-family:'Cinzel',serif; color:#f5c518; font-size:2.1rem; letter-spacing:1px; text-shadow:0 1px 18px rgba(245,197,24,0.40),0 1px 2px #000;">
+      <i class="fas fa-film me-2" style="font-size:1.6rem;"></i> Cinéphoria
+    </a>
+
+    <!-- Toggler Mobile -->
+    <button class="navbar-toggler border-0 bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- MENU -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto gap-1">
+
+        <!-- Toujours visibles -->
+        <li class="nav-item">
+          <a class="nav-link nav-anim text-light px-3" href="/films">
+            <i class="fas fa-film me-1"></i>Films
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link nav-anim text-light px-3" href="/reservation">
+            <i class="fas fa-ticket-alt me-1"></i>Réservation
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link nav-anim text-light px-3" href="/contact">
+            <i class="fas fa-envelope me-1"></i>Contact
+          </a>
+        </li>
+
+
+        <!-- ADMIN -->
+        <% if (currentUser && currentUser.role === 'ADMIN') { %>
+          <li class="nav-item">
+            <a class="nav-link nav-anim text-warning px-3" href="/admin">
+              <i class="fa-solid fa-shield-halved me-1"></i>Admin
+            </a>
+          </li>
+        <% } %>
+
+        <!-- EMPLOYÉ -->
+        <% if (currentUser && currentUser.role === 'EMPLOYEE') { %>
+          <li class="nav-item">
+            <a class="nav-link nav-anim text-warning px-3" href="/employe/home">
+              <i class="fa-solid fa-user-tie me-1"></i>Espace Employé
+            </a>
+          </li>
+        <% } %>
+
+        <!-- UTILISATEUR (USER) -->
+        <% if (currentUser && currentUser.role === 'USER') { %>
+          <li class="nav-item">
+            <a class="nav-link nav-anim text-warning px-3" href="/user/espace">
+              <i class="fa-solid fa-user-circle me-1"></i>Mon espace
+            </a>
+          </li>
+        <% } %>
+
+        <!-- NON CONNECTÉ -->
+        <% if (!currentUser) { %>
+          <li class="nav-item">
+            <a class="nav-link nav-anim text-light px-3" href="/login">
+              <i class="fas fa-sign-in-alt me-1"></i>Se connecter
+            </a>
+          </li>
+        <% } %>
+
+        <!-- CONNECTÉ — LOGOUT -->
+        <% if (currentUser) { %>
+          <li class="nav-item">
+            <a class="nav-link nav-anim text-danger px-3" href="/logout">
+              <i class="fas fa-power-off me-1"></i>Déconnexion
+            </a>
+          </li>
+        <% } %>
+
+      </ul>
+    </div>
+
+  </div>
+</nav>

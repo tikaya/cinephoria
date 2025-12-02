@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Réinitialiser un mot de passe - Cinéphoria</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: radial-gradient(circle at 30% 20%, #1a1f36, #0a0f1f, #050812);
+      background-size: 200% 200%;
+      animation: backgroundShift 25s ease infinite;
+      font-family: 'Poppins', sans-serif;
+      color: #eaeaea;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transition: opacity 1.2s ease-in-out;
+    }
+    body.loaded { opacity: 1; }
+    @keyframes backgroundShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .cinema-card {
+      background: rgba(255,255,255,0.07);
+      border: 1.2px solid rgba(245,197,24,0.33);
+      border-radius: 19px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+    .cinema-card:hover { transform: translateY(-5px) scale(1.016); box-shadow: 0 0 50px rgba(245,197,24,0.24); }
+    .fade-in { opacity: 0; transform: translateY(25px); animation: fadeInUp 1s ease forwards; }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    h1 {
+      font-family: 'Cinzel', serif; color: #f5c518;
+      text-shadow: 0 0 18px rgba(245,197,24,0.5), 0 0 30px rgba(0,0,0,0.8);
+      font-size: 2.2rem; margin-bottom: 1.3em;
+    }
+    .cinema-label { color: #f5c518; font-weight: 500; text-shadow: 0 0 6px rgba(0,0,0,0.8); }
+    .form-control, .form-select {
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff; border-radius: 8px; transition: border 0.3s, box-shadow 0.3s;
+    }
+    .form-control:focus, .form-select:focus {
+      background: rgba(0,0,0,0.33);
+      border-color: #f5c518;
+      box-shadow: 0 0 12px rgba(245,197,24,0.48);
+      outline: none; color: #fff;
+    }
+    .input-group-text {
+      background: rgba(245,197,24,0.12);
+      border: 1px solid rgba(245,197,24,0.20);
+      color: #f5c518;
+    }
+    .invalid-feedback { color: #ff4257; }
+    .btn-cinema {
+      background: linear-gradient(45deg, #ff004d, #a700ff);
+      color: #fff; font-weight: bold; border-radius: 8px;
+      padding: 13px; border: none; text-shadow: 0 0 6px rgba(0,0,0,0.8);
+      transition: transform 0.4s, box-shadow 0.4s;
+      position: relative; overflow: hidden; margin-top: 10px;
+    }
+    .btn-cinema:active { transform: scale(0.96); }
+    .btn-cinema:hover { transform: scale(1.05); box-shadow: 0 0 24px rgba(245,197,24,0.55); }
+    .btn-outline-light { border-color: rgba(255,255,255,0.5); color: #fff; }
+    .btn-outline-light:hover { background: rgba(255,255,255,0.12); }
+    @media (max-width: 540px) {
+      .cinema-card { padding: 1.2rem 0.6rem 1.5rem 0.6rem; }
+      h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="container mt-5 mb-5 fade-in">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card cinema-card shadow p-5">
+          <h1 class="text-center">🔐 Réinitialiser un mot de passe employé</h1>
+
+          <% if (errorMessage) { %>
+            <div class="alert alert-danger text-center" role="alert">
+              <i class="fa-solid fa-triangle-exclamation me-2"></i><%= errorMessage %>
+            </div>
+          <% } %>
+
+          <% if (successMessage) { %>
+            <div class="alert alert-success text-center" role="alert">
+              <i class="fa-solid fa-circle-check me-2"></i><%= successMessage %>
+            </div>
+          <% } %>
+
+          <form id="resetForm" action="/admin/resetpwd/employe/traitement" method="POST" novalidate>
+            <!-- CSRF -->
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="mb-3">
+              <label for="email" class="form-label cinema-label">Adresse e-mail de l’employé</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  placeholder="employe@exemple.com"
+                  value="<%= previousValues?.email || '' %>"
+                  required
+                  autocomplete="email">
+                <div class="invalid-feedback">Veuillez saisir une adresse e-mail valide.</div>
+              </div>
+            </div>
+
+        <div class="form-text mb-2 fw-semibold" style="color:#ffffff; text-shadow:0 0 6px rgba(0,0,0,0.7);">
+            Un <strong>mot de passe temporaire</strong> sera généré et envoyé par e-mail à l’employé.<br>
+            L’employé sera invité à le changer dès la première connexion.
+        </div>
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-cinema btn-lg" id="submitBtn">
+                <span class="me-2"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                Réinitialiser le mot de passe
+              </button>
+              <a href="/admin" class="btn btn-outline-light">
+                <i class="fa-solid fa-circle-arrow-left me-2"></i>Retour à l’administration
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Effet fondu au chargement
+    window.addEventListener("load", () => { document.body.classList.add("loaded"); });
+
+    // Validation simple côté client (Bootstrap)
+    (function () {
+      'use strict';
+      const form = document.getElementById('resetForm');
+      const submitBtn = document.getElementById('submitBtn');
+
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        } else {
+          // Petite UX: empêcher double-submit et montrer un spinner
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Traitement...';
+        }
+        form.classList.add('was-validated');
+      }, false);
+    })();
+  </script>
+</body>
+</html>

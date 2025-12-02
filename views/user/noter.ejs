@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Noter le film – Cinéphoria</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --bg1: #0a0f1f;
+      --bg2: #121829;
+      --ink: #e4e4e4;
+    }
+
+    body {
+      background: radial-gradient(circle at center, var(--bg2), var(--bg1));
+      color: var(--ink);
+      font-family: 'Poppins', sans-serif;
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+    body.loaded { opacity: 1; }
+
+    .card-cinema {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(245,197,24,0.3);
+      border-radius: 14px;
+      padding: 2rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+    }
+
+    .text-cinema {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(245,197,24,0.6);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .btn-cinema {
+      background-color: var(--gold);
+      color: #000;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: .6rem 1.2rem;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <%- include('../partials/header', { currentUser }) %>
+</header>
+
+<main class="container py-5">
+
+  <h1 class="text-cinema">⭐ Noter le film</h1>
+
+  <div class="card-cinema mx-auto" style="max-width: 700px;">
+
+    <h3 class="mb-3" style="font-family:'Cinzel',serif; color:var(--gold);">
+      🎬 <%= reservation.titre %>
+    </h3>
+
+    <p>
+      <strong>Date :</strong>
+      <%= new Date(reservation.date_seance).toLocaleDateString() %><br>
+      <strong>Horaire :</strong>
+      <%= reservation.heure_debut %> → <%= reservation.heure_fin %>
+    </p>
+
+    <form method="POST">
+
+      <div class="mb-3">
+        <label class="form-label fw-bold text-gold">Votre note (0 à 10)</label>
+        <input type="number" name="note" class="form-control" min="0" max="10" step="1" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold text-gold">Votre avis</label>
+        <textarea name="description" class="form-control" rows="5" required></textarea>
+      </div>
+
+      <button class="btn btn-cinema w-100">Envoyer ma note</button>
+
+    </form>
+  </div>
+
+</main>
+
+<script>
+  window.addEventListener("load", () => document.body.classList.add("loaded"));
+</script>
+
+</body>
+</html>

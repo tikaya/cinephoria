@@ -1,0 +1,54 @@
+<!-- views/admin/salles/_fields.ejs -->
+<div class="row g-3">
+  <!-- Cinéma -->
+  <div class="col-lg-6">
+    <label class="form-label">Cinéma *</label>
+    <select name="id_cinema" class="form-select" required>
+      <option value="">— Choisir un cinéma —</option>
+      <% (cinemas || []).forEach(c => { %>
+        <option value="<%= c.id_cinema %>"
+          <%= ((salle?.id_cinema ?? old?.id_cinema) == c.id_cinema) ? 'selected' : '' %>>
+          <%= c.nom_cinema %> (<%= c.ville %>)
+        </option>
+      <% }) %>
+    </select>
+    <% if (errors) { const e = errors.find(x => x.field === 'id_cinema'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- Nom de la salle -->
+  <div class="col-lg-6">
+    <label class="form-label">Nom de la salle *</label>
+    <input type="text" name="nom_salle" class="form-control"
+           value="<%= (salle?.nom_salle ?? old?.nom_salle ?? '') %>">
+    <% if (errors) { const e = errors.find(x => x.field === 'nom_salle'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- Capacité -->
+  <div class="col-lg-3">
+    <label class="form-label">Capacité</label>
+    <input type="number" min="0" step="1" name="capacite" class="form-control"
+           value="<%= (salle?.capacite ?? old?.capacite ?? '') %>">
+    <% if (errors) { const e = errors.find(x => x.field === 'capacite'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- Qualité de projection -->
+  <div class="col-lg-3">
+    <label class="form-label">Qualité de projection</label>
+    <input type="text" name="qualite_projection" class="form-control"
+           value="<%= (salle?.qualite_projection ?? old?.qualite_projection ?? '') %>"
+           placeholder="Ex: 2D, 3D, IMAX">
+  </div>
+</div>
+
+<!-- Avertissement global éventuel -->
+<% if (errors && errors.length) {
+     const warn = errors.find(x => x.field === '_');
+     if (warn) { %>
+  <div class="alert alert-warning mt-3"><%= warn.message %></div>
+<% } } %>

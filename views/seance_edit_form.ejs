@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title><%= titlePage || "Modifier la séance" %> – Cinéphoria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --bg1: #0a0f1f;
+      --ink: #e4e4e4;
+    }
+
+    body {
+      background-color: var(--bg1);
+      color: var(--ink);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+    body.loaded { opacity: 1; }
+
+    h1.text-cinema {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(245,197,24,0.6);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .card-form {
+      max-width: 880px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(245,197,24,0.25);
+      border-radius: 14px;
+      padding: 2rem;
+      box-shadow: 0 0 24px rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+    }
+
+    label { color: var(--gold); font-weight: 600; }
+
+    .form-select, .form-control {
+      background-color: rgba(255,255,255,0.08);
+      border: 1px solid rgba(245,197,24,0.25);
+      color: var(--ink);
+    }
+    .form-select:focus, .form-control:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 8px rgba(245,197,24,0.35);
+      background-color: rgba(255,255,255,0.12);
+      color: var(--ink);
+    }
+
+    .btn-cinema {
+      background-color: var(--gold);
+      border: none;
+      color: #000;
+      font-weight: 700;
+      text-transform: uppercase;
+      border-radius: 8px;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn-cinema:hover {
+      background-color: #ffd84a;
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px rgba(245,197,24,0.5);
+    }
+
+    .btn-outline-light {
+      border: 1px solid rgba(245,197,24,0.5);
+      color: var(--ink);
+    }
+    .btn-outline-light:hover {
+      background: var(--gold);
+      color: #000;
+    }
+
+    .meta {
+      color: #bfbfbf;
+      font-size: .95rem;
+    }
+    .form-select {
+  background-color: rgba(255,255,255,0.1);
+  color: var(--ink);
+  border: 1px solid rgba(245,197,24,0.3);
+}
+
+.form-select option {
+  background-color: #12192d; /* fond sombre */
+  color: var(--ink); /* texte clair */
+  padding: 6px 10px;
+}
+
+/* Quand on survole une option */
+.form-select option:hover {
+  background-color: var(--gold);
+  color: #000; /* texte noir lisible sur fond doré */
+}
+
+/* Option actuellement sélectionnée */
+.form-select option:checked {
+  background-color: var(--gold);
+  color: #000;
+  font-weight: 600};
+  
+  </style>
+</head>
+<body>
+  <header>
+    <%- include('partials/header_employe', { currentUser }) %>
+  </header>
+
+  <main class="container py-5">
+    <h1 class="text-cinema">✏️ <%= titlePage || "Modifier la séance" %></h1>
+
+    <!-- Contexte rapide de la séance -->
+    <div class="text-center meta mb-4">
+      <div>🎞️ <strong><%= seance.film_titre %></strong></div>
+      <div>🏛️ <%= seance.nom_cinema %> — <%= seance.nom_salle %></div>
+    </div>
+
+    <!-- Messages flash éventuels -->
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success text-center fw-bold mb-4" role="alert">✅ <%= success[0] %></div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger text-center fw-bold mb-4" role="alert">⚠️ <%= error[0] %></div>
+    <% } %>
+
+    <div class="card-form">
+      <!-- Formulaire de mise à jour --> 
+      <form method="POST" action="/intranet/seances/<%= seance.id_seance %>/update" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="id_seance" value="<%= seance.id_seance %>">
+
+        <!-- FILM -->
+        <div class="mb-3">
+          <label for="id_film" class="form-label">🎞️ Film</label>
+          <select id="id_film" name="id_film" class="form-select" required>
+            <% films.forEach(f => { %>
+              <option value="<%= f.id_film %>" <%= f.id_film === seance.id_film ? "selected" : "" %>>
+                <%= f.titre %>
+              </option>
+            <% }) %>
+          </select>
+          <div class="form-text">Choisissez le film associé à cette séance.</div>
+        </div>
+
+        <!-- SALLE -->
+        <div class="mb-3">
+          <label for="id_salle" class="form-label">🏛️ Salle & Cinéma</label>
+          <select id="id_salle" name="id_salle" class="form-select" required>
+            <% salles.forEach(s => { %>
+              <option value="<%= s.id_salle %>" <%= s.id_salle === seance.id_salle ? "selected" : "" %>>
+                <%= s.nom_salle %> — <%= s.nom_cinema %>
+              </option>
+            <% }) %>
+          </select>
+          <div class="form-text">Le nom du cinéma est affiché pour éviter toute confusion.</div>
+        </div>
+
+        <!-- QUALITÉ -->
+        <div class="mb-3">
+          <label for="qualite_projection" class="form-label">📽️ Qualité de projection</label>
+          <select id="qualite_projection" name="qualite_projection" class="form-select" required>
+            <% (qualites || []).forEach(q => { %>
+              <option value="<%= q %>" <%= (seance.qualite_projection === q) ? "selected" : "" %>><%= q %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <!-- DATE & HEURES -->
+        <% 
+          // Normalisations pour <input type="date"> et <input type="time">
+          const _dateISO = (new Date(seance.date_seance)).toISOString().split('T')[0];
+          const _hDeb = (seance.heure_debut || '').toString().slice(0,5); // "HH:MM"
+          const _hFin = (seance.heure_fin   || '').toString().slice(0,5);
+        %>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label for="date_seance" class="form-label">📅 Date</label>
+            <input type="date" id="date_seance" name="date_seance" class="form-control" required value="<%= _dateISO %>">
+          </div>
+          <div class="col-md-4">
+            <label for="heure_debut" class="form-label">🕗 Début</label>
+            <input type="time" id="heure_debut" name="heure_debut" class="form-control" required value="<%= _hDeb %>">
+          </div>
+          <div class="col-md-4">
+            <label for="heure_fin" class="form-label">🕙 Fin</label>
+            <input type="time" id="heure_fin" name="heure_fin" class="form-control" required value="<%= _hFin %>">
+          </div>
+        </div>
+
+        <!-- PRIX -->
+        <div class="mb-3">
+          <label for="prix" class="form-label">💰 Prix unitaire (€)</label>
+          <input type="number" id="prix" name="prix" class="form-control" step="0.01" min="0" required value="<%= seance.prix %>">
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="d-flex gap-2 mt-4">
+          <a href="/intranet/seances/all" class="btn btn-outline-light w-25">⬅️ Retour</a>
+          <button type="submit" class="btn btn-cinema w-75">💾 Enregistrer les modifications</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener("load", () => document.body.classList.add("loaded"));
+  </script>
+</body>
+</html>

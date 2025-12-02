@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Modifier une salle - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root { --gold:#f5c518; --bg1:#0a0f1f; --bg2:#121829; --ink:#eaeaea; }
+    body {
+      background: radial-gradient(circle at center, var(--bg2), var(--bg1) 85%);
+      background-size: 300% 300%; animation: gm 20s ease infinite;
+      color: var(--ink); font-family:'Poppins',sans-serif; overflow-x:hidden;
+      opacity:0; transition:opacity 1s ease;
+    }
+    @keyframes gm { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}}
+    body.loaded { opacity:1; }
+
+    h1.text-cinema {
+      font-family:'Cinzel',serif; color:var(--gold);
+      text-shadow:0 0 14px rgba(245,197,24,.6),0 0 25px rgba(0,0,0,.9);
+      margin-bottom:30px; text-align:center;
+    }
+    form {
+      max-width: 780px; margin: 0 auto;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(245,197,24,.3);
+      border-radius: 14px; padding: 2.2rem;
+      box-shadow: 0 0 30px rgba(0,0,0,.65);
+      backdrop-filter: blur(10px);
+    }
+    label { color: var(--gold); font-weight:600; text-shadow:0 1px 2px rgba(0,0,0,.5); }
+    .form-select,.form-control {
+      background-color: rgba(255,255,255,.10);
+      border:1px solid rgba(245,197,24,.3); color:var(--ink);
+      box-shadow: inset 0 0 8px rgba(0,0,0,.5);
+    }
+    .form-select:focus,.form-control:focus {
+      border-color: var(--gold); box-shadow: 0 0 8px rgba(245,197,24,.4);
+      background-color: rgba(255,255,255,.15); color:var(--ink);
+    }
+    .btn-cinema {
+      background: linear-gradient(45deg,#ff004d,#a700ff);
+      border:none; color:#fff; font-weight:bold; text-transform:uppercase;
+      transition: transform .25s ease, box-shadow .25s ease;
+      border-radius:8px; padding:10px 16px; box-shadow:0 0 15px rgba(0,0,0,.5);
+    }
+    .btn-cinema:hover { transform: translateY(-2px) scale(1.03); box-shadow:0 0 25px rgba(245,197,24,.6); }
+    .alert { box-shadow:0 0 12px rgba(0,0,0,.5); }
+    /* ====== Fix visibilité inputs/selects sur fond sombre ====== */
+.form-control,
+.form-select,
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea {
+  background-color: #0f1730 !important;     /* fond sombre net */
+  color: var(--ink) !important;             /* texte clair */
+  border: 1px solid rgba(245,197,24,0.30) !important;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+  caret-color: var(--ink);
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  background-color: #141d38 !important;     /* un poil plus clair au focus */
+  color: var(--ink) !important;
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 10px rgba(245,197,24,0.35) !important;
+  outline: none;
+}
+
+/* Placeholders bien visibles mais moins forts que le texte */
+::placeholder {
+  color: #bfc7d9 !important;
+  opacity: 1 !important;
+}
+
+/* Options du <select> en thème sombre */
+select option {
+  background-color: #0f1730;
+  color: var(--ink);
+}
+
+/* États disabled / readonly lisibles */
+.form-control[readonly],
+.form-control:disabled,
+.form-select:disabled {
+  background-color: #0c1226 !important;
+  color: #aeb6c9 !important;
+  opacity: 1 !important;
+}
+
+/* Chrome/Brave/Edge : neutralise le jaune d'autofill et remet texte clair */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--ink) !important;
+  transition: background-color 5000s ease-in-out 0s; /* hack pour cacher le fond autofill */
+  box-shadow: 0 0 0px 1000px #141d38 inset !important; /* recolore le fond */
+  border: 1px solid rgba(245,197,24,0.30) !important;
+}
+
+/* Labels un peu plus lisibles */
+label.form-label {
+  color: var(--gold);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+/* Bouton: hover/focus plus lisible au clavier */
+.btn-cinema:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <%- include('partials/header_employe', { currentUser }) %>
+  </header>
+
+  <main class="container py-5">
+    <h1 class="text-cinema">✏️ Modifier la salle</h1>
+
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger text-center fw-bold mb-4">⚠️ <%= error[0] %></div>
+    <% } %>
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success text-center fw-bold mb-4">✅ <%= success[0] %></div>
+    <% } %>
+
+   <form method="POST" action="/intranet/salles/<%= id_salle %>/update">
+
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="id_salle" value="<%= id_salle %>">
+
+      <!-- CINÉMA (modifiable via select, pré-sélectionné sur le cinéma actuel) -->
+      <div class="mb-3">
+        <label for="id_cinema" class="form-label">🎥 Cinéma</label>
+        <select id="id_cinema" name="id_cinema" class="form-select" required>
+          <option value="">-- Sélectionner un cinéma --</option>
+          <% cinemas.forEach(c => { %>
+            <option value="<%= c.id_cinema %>" <%= (c.id_cinema === salle.id_cinema) ? "selected" : "" %>>
+              <%= c.nom_cinema %>
+            </option>
+          <% }) %>
+        </select>
+        <small class="text-muted">Actuel : <strong><%= salle.nom_cinema %></strong></small>
+      </div>
+
+      <!-- NOM DE LA SALLE -->
+      <div class="mb-3">
+        <label for="nom_salle" class="form-label">🏷️ Nom de la salle</label>
+        <input type="text" id="nom_salle" name="nom_salle" class="form-control" required
+               value="<%= salle.nom_salle %>">
+      </div>
+
+      <!-- CAPACITÉ -->
+      <div class="mb-3">
+        <label for="capacite" class="form-label">👥 Capacité (nombre de sièges)</label>
+        <input type="number" id="capacite" name="capacite" class="form-control"
+               required min="10" max="1000" value="<%= salle.capacite %>">
+      </div>
+
+      <!-- QUALITÉ DE PROJECTION -->
+      <div class="mb-3">
+        <label for="qualite_projection" class="form-label">📽️ Qualité de projection</label>
+        <select id="qualite_projection" name="qualite_projection" class="form-select" required>
+          <% qualites.forEach(q => { %>
+            <option value="<%= q %>" <%= (salle.qualite_projection === q) ? "selected" : "" %>><%= q %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-cinema w-100 mt-3">
+        <i class="fa-solid fa-floppy-disk me-2"></i> Enregistrer les modifications
+      </button>
+    </form>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script> window.addEventListener("load", () => document.body.classList.add("loaded")); </script>
+</body>
+</html>

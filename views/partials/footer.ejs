@@ -1,0 +1,52 @@
+<footer class="cinema-footer glass-footer py-3">
+  <div class="container-fluid px-4">
+    <div class="row align-items-center gy-2">
+      <!-- Infos -->
+      <div class="col-md-6 text-start text-md-start text-center" style="font-size:1.06rem;">
+        <p class="mb-1"><i class="fas fa-map-marker-alt me-1" style="color:#f5c518;"></i>123 Rue du Cinéma, Paris</p>
+        <p class="mb-1"><i class="fas fa-phone-alt me-1" style="color:#f5c518;"></i>+33 6 12 34 56 78</p>
+        <p class="mb-0"><i class="fas fa-clock me-1" style="color:#f5c518;"></i>Ouvert tous les jours de 10h à 23h</p>
+      </div>
+      <!-- Droits et signature -->
+      <div class="col-md-6 text-md-end text-center d-flex flex-column align-items-md-end align-items-center justify-content-center">
+        <p class="mb-0 signature" style="font-size:0.99rem; opacity:0.85; color:#ccc; letter-spacing:0.01em;">
+          © 2025 Cinéphoria | Conçu par 
+          <span class="tikaya-signature">KOUAKOU Tikaya</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+.glass-footer, .cinema-footer {
+  margin-top: 0 !important;
+  background: rgba(12, 18, 38, 0.82);
+  backdrop-filter: blur(13px) saturate(165%);
+  border-top: 1.2px solid rgba(245,197,24,0.22);
+  box-shadow: 0 -2px 30px 0 rgba(245,197,24,0.12), 0 -1.5px 0 rgba(255,255,255,0.11);
+  color: #eaeaea;
+  font-size: 1.05rem;
+  z-index: 1002;
+}
+.glass-footer .tikaya-signature {
+  color: #f5c518;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 6px rgba(245,197,24,0.13);
+  transition: color 0.16s, text-shadow 0.24s;
+  cursor: pointer;
+}
+.glass-footer .tikaya-signature:hover {
+  color: #fff;
+  text-shadow: 0 1px 14px #f5c518, 0 1px 4px #222;
+}
+.signature {
+  user-select: none;
+}
+@media (max-width: 700px) {
+  .glass-footer, .cinema-footer { font-size:0.98rem; }
+  .signature { font-size:0.93rem !important; }
+  .col-md-6 { text-align:center !important; }
+}
+</style>

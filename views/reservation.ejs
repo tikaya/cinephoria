@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Réservation - Cinéphoria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    :root {
+      --gold: #f5c518;
+      --gold-glow: rgba(245, 197, 24, 0.4);
+      --purple: #a700ff;
+      --pink: #ff004d;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body { height: 100%; scroll-behavior: smooth; }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #1a2341, #0a0f1f 50%, #000000);
+      background-size: 100% 200%;
+      animation: gradientFlow 20s ease infinite;
+      color: #eaeaea;
+      font-family: 'Poppins', sans-serif;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Particules flottantes */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20% 30%, rgba(245,197,24,0.15), transparent),
+        radial-gradient(2px 2px at 60% 70%, rgba(167,0,255,0.1), transparent),
+        radial-gradient(1px 1px at 50% 50%, rgba(255,0,77,0.1), transparent);
+      background-size: 200% 200%;
+      animation: particlesFloat 30s ease infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes particlesFloat {
+      0%, 100% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+    }
+
+    body.loaded { opacity: 1; }
+
+    @keyframes gradientFlow {
+      0% { background-position: 50% 0%; }
+      50% { background-position: 50% 100%; }
+      100% { background-position: 50% 0%; }
+    }
+
+    header, footer {
+      width: 100%;
+      background: rgba(10, 15, 31, 0.95);
+      backdrop-filter: blur(20px);
+      text-align: center;
+      padding: 18px 0;
+      color: #eaeaea;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.7);
+      position: relative;
+      z-index: 10;
+    }
+
+    footer {
+      margin-top: auto;
+      border-top: 1px solid rgba(245,197,24,0.15);
+    }
+
+    main {
+      flex: 1;
+      padding: 20px 0 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Titre */
+    h1, h2 {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f5c518 0%, #ffdd57 50%, #f5c518 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 20px var(--gold-glow)) drop-shadow(0 0 40px rgba(245,197,24,0.2));
+      text-align: center;
+      letter-spacing: 2px;
+      animation: fadeInDown 1.2s ease, titleGlow 3s ease-in-out infinite;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      margin: 50px auto 40px;
+      padding: 0 20px;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      margin: 40px auto 30px;
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { filter: drop-shadow(0 0 20px var(--gold-glow)); }
+      50% { filter: drop-shadow(0 0 30px var(--gold-glow)); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section fade */
+    .fade-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .fade-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Carte sélecteur */
+    .cinema-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 2px solid rgba(245,197,24,0.3);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      padding: 2rem;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cinema-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(245,197,24,0.05), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .cinema-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(245,197,24,0.4);
+      border-color: rgba(245,197,24,0.5);
+    }
+
+    /* Form elements */
+    .form-label {
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-label i {
+      font-size: 1.3rem;
+    }
+
+    .form-select {
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(245,197,24,0.3);
+      border-radius: 12px;
+      color: #e9ecef;
+      padding: 1rem;
+      font-size: 1.05rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .form-select:focus {
+      background: rgba(255,255,255,0.12);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(245,197,24,0.3);
+      color: #fff;
+      outline: none;
+    }
+
+    .form-select option {
+      background: #1a1f35;
+      color: #e9ecef;
+      padding: 10px;
+    }
+
+    /* Carte film */
+    .film-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 2px solid rgba(245,197,24,0.25);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+      padding: 1.25rem;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .film-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(245,197,24,0.08) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .film-card:hover::before {
+      opacity: 1;
+      animation: rotateGlow 4s linear infinite;
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .film-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(245,197,24,0.4);
+      border-color: rgba(245,197,24,0.6);
+    }
+
+    /* Poster uniforme */
+    .poster-wrap {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      background: #0f1629;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .poster {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .film-card:hover .poster {
+      transform: scale(1.05);
+    }
+
+    .poster-fallback {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: #9aa6bd;
+      background: radial-gradient(120% 90% at 50% 10%, #1c2440 0%, #0f1426 70%, #0a0f1f 100%);
+      font-size: 3rem;
+    }
+
+    .film-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-align: center;
+      margin: 0.75rem 0;
+      text-shadow: 0 2px 8px rgba(245,197,24,0.3);
+      line-height: 1.3;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Bouton */
+    .btn-cinema {
+      background: linear-gradient(135deg, #ff004d 0%, #c7007a 50%, #a700ff 100%);
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 12px;
+      padding: 12px 20px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      box-shadow: 0 4px 15px rgba(255,0,77,0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .btn-cinema::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-cinema:hover::before {
+      left: 100%;
+    }
+
+    .btn-cinema:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255,0,77,0.6);
+      background: linear-gradient(135deg, #ff1a5e 0%, #d6008f 50%, #b800ff 100%);
+    }
+
+    /* Messages */
+    .empty-message {
+      text-align: center;
+      padding: 3rem 2rem;
+      animation: fadeInUp 1s ease;
+    }
+
+    .empty-message i {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .text-warning { color: var(--gold) !important; }
+    .text-info { color: #5bc0de !important; }
+
+    /* Responsive */
+    @media (max-width: 767.98px) {
+      .cinema-card { padding: 1.5rem; }
+      h1 { margin: 30px auto 30px; }
+      h2 { margin: 30px auto 25px; }
+      .film-title { font-size: 1rem; }
+      .poster-fallback { font-size: 2.5rem; }
+    }
+
+    @media (max-width: 575.98px) {
+      .cinema-card { padding: 1.25rem; }
+      .form-label { font-size: 1rem; }
+      .btn-cinema { padding: 10px 16px; font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="container mt-5">
+    <h1 class="fade-section">
+      <i class="fas fa-ticket-alt me-3"></i>Réserver vos places
+    </h1>
+
+    <!-- Étape 1: Sélection du cinéma -->
+    <section class="fade-section mb-5">
+      <form method="GET" action="/reservation" class="cinema-card">
+        <label for="cinemaId" class="form-label">
+          <i class="bi bi-geo-alt-fill"></i>
+          Choisissez votre cinéma
+        </label>
+        <select name="cinemaId" id="cinemaId" class="form-select" onchange="this.form.submit()">
+          <option value="">-- Sélectionnez un cinéma --</option>
+          <% cinemas.forEach(cinema => { %>
+            <option value="<%= cinema.id_cinema %>" <%= String(selectedCinema) === String(cinema.id_cinema) ? 'selected' : '' %>>
+              <%= cinema.nom_cinema %>
+            </option>
+          <% }) %>
+        </select>
+      </form>
+    </section>
+
+    <!-- Étape 2: Films disponibles -->
+    <% if (selectedCinema && films.length > 0) { %>
+      <section class="fade-section">
+        <h2><i class="fas fa-film me-3"></i>Films à l'affiche</h2>
+        <div class="row mt-4 g-4">
+          <% films.forEach(film => { 
+               const poster = (film.poster_url || film.affiche_url || '').trim(); %>
+            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+              <div class="film-card">
+                <!-- Poster -->
+                <div class="poster-wrap">
+                  <% if (poster) { %>
+                    <img 
+                      class="poster"
+                      src="<%= poster %>"
+                      alt="Affiche de <%= film.titre %>"
+                      loading="lazy"
+                      onerror="this.replaceWith((() => { const d=document.createElement('div'); d.className='poster-fallback'; d.innerHTML='<i class=`bi bi-film`></i>'; return d; })())"
+                    />
+                  <% } else { %>
+                    <div class="poster-fallback"><i class="bi bi-film"></i></div>
+                  <% } %>
+                </div>
+
+                <div class="film-title"><%= film.titre %></div>
+
+                <form method="GET" action="/seances">
+                  <input type="hidden" name="cinemaId" value="<%= selectedCinema %>">
+                  <input type="hidden" name="filmId" value="<%= film.id_film %>">
+                  <input type="hidden" name="nbPlaces" value="1">
+                  <button type="submit" class="btn btn-cinema">
+                    <i class="bi bi-ticket-detailed me-2"></i> Voir les séances
+                  </button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+    <% } else if (selectedCinema) { %>
+      <div class="empty-message">
+        <i class="bi bi-exclamation-circle text-warning"></i>
+        <p class="text-warning fs-5 mt-3">Aucun film disponible pour ce cinéma.</p>
+      </div>
+    <% } else { %>
+      <div class="empty-message">
+        <i class="bi bi-arrow-down-circle text-info"></i>
+        <p class="text-info fs-5 mt-3">Choisissez un cinéma pour afficher les films disponibles.</p>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+      document.querySelectorAll(".fade-section").forEach((el, i) => {
+        setTimeout(() => el.classList.add("visible"), i * 150);
+      });
+    });
+  </script>
+</body>
+</html>
+
+

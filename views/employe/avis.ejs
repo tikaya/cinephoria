@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Modération des avis – Cinéphoria</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <style>
+    :root {
+      --gold:#f5c518;
+      --ink:#eaeaea;
+      --glass:rgba(255,255,255,0.06);
+    }
+
+    body{
+      font-family:'Poppins',sans-serif;
+      background: radial-gradient(circle, #121829, #0a0f1f);
+      color:var(--ink);
+      opacity:0;
+      transition:.8s;
+    }
+    body.loaded{ opacity:1; }
+
+    .card-avis{
+      background:var(--glass);
+      border:1px solid rgba(245,197,24,0.25);
+      border-radius:16px;
+      backdrop-filter: blur(10px);
+      padding:1.5rem;
+      transition:.3s;
+    }
+    .card-avis:hover{
+      transform:translateY(-5px);
+      box-shadow:0 0 20px rgba(245,197,24,0.3);
+      border-color:var(--gold);
+    }
+
+    .note-badge{
+      padding:0.4rem 0.7rem;
+      background:var(--gold);
+      color:#000;
+      border-radius:6px;
+      font-weight:700;
+      font-size:1rem;
+    }
+
+    .btn-validate{
+      background:var(--gold);
+      border:none;
+      color:#000;
+      font-weight:600;
+      padding:.5rem 1.2rem;
+      border-radius:8px;
+    }
+    .btn-refuse{
+      background:#ff004d;
+      border:none;
+      color:#fff;
+      font-weight:600;
+      padding:.5rem 1.2rem;
+      border-radius:8px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <%- include('../partials/header_employe', { currentUser }) %>
+</header>
+
+<main class="container py-5">
+
+  <h1 class="text-center text-cinema mb-5">🛡️ Modération des avis</h1>
+
+  <% if (success.length) { %>
+    <div class="alert alert-success text-center"><%= success[0] %></div>
+  <% } %>
+
+  <% if (error.length) { %>
+    <div class="alert alert-danger text-center"><%= error[0] %></div>
+  <% } %>
+
+  <div class="row g-4">
+
+    <% if (avis.length === 0) { %>
+      <p class="text-center mt-5">Aucun avis en attente de validation.</p>
+    <% } %>
+
+    <% avis.forEach(a => { %>
+      <div class="col-md-6">
+        <div class="card-avis">
+
+          <h4 style="color:var(--gold); font-family:'Cinzel',serif;">
+            🎬 <%= a.titre %>
+          </h4>
+
+          <p class="mt-2">
+            <span class="note-badge">⭐ <%= a.note %> / 10</span>
+          </p>
+
+          <p class="mt-3">
+            <strong>Auteur :</strong> <%= a.username || a.email %><br>
+            <strong>Commentaire :</strong><br>
+            <textarea class="form-control mt-1" readonly><%= a.commentaire %></textarea>
+          </p>
+
+          <div class="d-flex gap-2 mt-3">
+            <form method="POST" action="/intranet/avis/<%= a.id_note %>/valider">
+              <button class="btn btn-validate">
+                <i class="fa-solid fa-check"></i> Valider
+              </button>
+            </form>
+
+            <form method="POST" action="/intranet/avis/<%= a.id_note %>/refuser">
+              <button class="btn btn-refuse">
+                <i class="fa-solid fa-xmark"></i> Supprimer
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    <% }) %>
+
+  </div>
+</main>
+
+<footer>
+  <%- include('../partials/footer') %>
+</footer>
+
+<script>
+  window.onload = () => document.body.classList.add("loaded");
+</script>
+
+</body>
+</html>

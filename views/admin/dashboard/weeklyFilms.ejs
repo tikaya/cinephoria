@@ -1,0 +1,145 @@
+<!-- views/admin/dashboard/weeklyFilms.ejs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Réservations par film — 7 jours</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 20px; color:#111827; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .row > * { margin: 4px 0; }
+    label { font-size:14px; color:#374151; }
+    select, input, button { border:1px solid #d1d5db; border-radius:8px; padding:8px 10px; font-size:14px; }
+    button.primary { background:#111827; color:#fff; border-color:#111827; cursor:pointer; }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 0; }
+    .chip { background:#f3f4f6; border:1px solid #e5e7eb; padding:6px 10px; border-radius:999px; font-size:12px; color:#374151; }
+    .muted { color:#6b7280; }
+    .empty { text-align:center; padding:40px 20px; color:#6b7280; }
+    .spinner { display:inline-block; width:16px; height:16px; border:2px solid #e5e7eb; border-top-color:#111827; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1 style="margin:0 0 12px">Réservations par film</h1>
+  <p class="muted" style="margin:0 0 16px">Visualisation sur <strong><%= days %></strong> jours, basée sur la <em>date de création</em> (ou synchro) de la réservation.</p>
+
+  <form class="card" method="GET" action="">
+    <div class="row">
+      <label> Période
+        <select name="days">
+          <option value="7"  <%= String(days)==='7' ? 'selected':'' %>>7 jours</option>
+          <option value="14" <%= String(days)==='14' ? 'selected':'' %>>14 jours</option>
+          <option value="30" <%= String(days)==='30' ? 'selected':'' %>>30 jours</option>
+        </select>
+      </label>
+
+      <label> Cinéma
+        <select name="cinemaId">
+          <option value="">Tous</option>
+          <% (typeof cinemas !== 'undefined' ? cinemas : []).forEach(c => { %>
+            <option value="<%= c.id %>" <%= String(cinemaId)===String(c.id) ? 'selected':'' %>>
+              <%= c.nom %> — <%= c.ville %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label> Top films
+        <select name="topN">
+          <option value="3"  <%= String(topN)==='3' ? 'selected':'' %>>Top 3</option>
+          <option value="5"  <%= String(topN)==='5' ? 'selected':'' %>>Top 5</option>
+          <option value="10" <%= String(topN)==='10' ? 'selected':'' %>>Top 10</option>
+          <option value="all" <%= String(topN)==='all' ? 'selected':'' %>>Tous</option>
+        </select>
+      </label>
+
+      <button class="primary" type="submit">Appliquer</button>
+
+      <button id="btnRefresh" type="button" title="Rafraîchir les données">
+        <span class="spinner" id="spin" style="display:none"></span> Rafraîchir
+      </button>
+
+      <label style="margin-left:auto">
+        <input type="checkbox" id="autoRefresh" /> Auto-refresh (10 s)
+      </label>
+    </div>
+
+    <div class="chips">
+      <span class="chip">Séries affichées : <strong><%= (series||[]).length %></strong></span>
+      <span class="chip">Total réservations : <strong><%= meta?.totalReservations || 0 %></strong></span>
+      <% if (cinemaId) { %><span class="chip">Filtré par cinéma: <strong><%= cinemaId %></strong></span><% } %>
+    </div>
+  </form>
+
+  <div class="card" style="margin-top:16px">
+    <% if (!(series && series.length)) { %>
+      <div class="empty">
+        Aucune donnée sur cette période / filtre.<br/>
+        Essayez d’élargir la période ou d’enlever le filtre cinéma.
+      </div>
+    <% } else { %>
+      <canvas id="chart" height="120"></canvas>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  const labels = <%- JSON.stringify(labels) %>;
+  const series = <%- JSON.stringify(series) %>;
+  const qs = new URLSearchParams(window.location.search);
+  const onlyPaid = false; // tu ne filtres plus par état
+
+  let chart = null;
+  function buildChart() {
+    if (!document.getElementById('chart')) return;
+    const datasets = series.map(s => ({
+      label: s.label,
+      data: s.data,
+      fill: false,
+      tension: 0.2
+    }));
+    const ctx = document.getElementById('chart').getContext('2d');
+    chart?.destroy();
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'bottom' }, title: { display: true, text: 'Réservations par film' } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+  buildChart();
+
+  async function refreshChart() {
+    const spin = document.getElementById('spin'); spin.style.display = 'inline-block';
+    try {
+      const url = `/admin/api/stats/weekly-films?days=${qs.get('days')||'<%= days %>'}&topN=${qs.get('topN')||'<%= topN %>'}&cinemaId=${qs.get('cinemaId')||'<%= cinemaId %>'}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      const data = await res.json(); // { labels, series }
+      if (chart) {
+        chart.data.labels = data.labels;
+        chart.data.datasets = data.series.map(s => ({ label: s.label, data: s.data, fill:false, tension:0.2 }));
+        chart.update();
+      }
+    } catch (e) { console.error(e); alert('Erreur lors du rafraîchissement'); }
+    finally { spin.style.display = 'none'; }
+  }
+  document.getElementById('btnRefresh').addEventListener('click', refreshChart);
+
+  let interval = null;
+  const auto = document.getElementById('autoRefresh');
+  auto.addEventListener('change', (e) => {
+    clearInterval(interval);
+    if (e.target.checked) interval = setInterval(refreshChart, 10000);
+  });
+</script>
+</body>
+</html>

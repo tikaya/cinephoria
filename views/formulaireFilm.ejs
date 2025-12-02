@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Créer un film — Administration | Cinéphoria</title>
+
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="/css/styles.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --gold:#f5c518; --bg-1:#0b1121; --bg-2:rgba(12,18,38,.72); --stroke:rgba(245,197,24,.18);
+      --text:#eaeaea; --muted:#a8b0c2; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+      --blur: 12px; --radius: 18px;
+    }
+    body { background: radial-gradient(1200px 700px at 20% -10%, #121a35 0%, #0a0f1f 45%, #05070f 100%); color: var(--text); }
+    main.admin-main { padding-top: 96px; padding-bottom: 80px; }
+
+    .glass { background: var(--bg-2); border:1px solid var(--stroke); border-radius: var(--radius);
+             backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
+             box-shadow: 0 10px 40px rgba(5,7,15,.35), inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .admin-topbar { align-items: center; gap: 12px; padding: 14px 18px; }
+    .admin-badge { background: rgba(245,197,24,.14); color:var(--gold); border:1px solid rgba(245,197,24,.35); }
+    .role-chip { color: var(--gold); font-weight: 600; }
+
+    .panel { padding:18px; }
+    .form-control, .form-select {
+      background: transparent; color: var(--text);
+      border-color: rgba(245,197,24,.25);
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 .2rem rgba(245,197,24,.15);
+    }
+    .help { color: var(--muted); font-size: .92rem; }
+    .text-gold { color: var(--gold); }
+    .btn-gold { color:#111827; background: var(--gold); border: 1px solid rgba(245,197,24,.5); }
+    .btn-gold:hover { filter: brightness(1.05); }
+    .link-muted { color: var(--muted); text-decoration: none; }
+    .link-muted:hover { color: var(--text); }
+
+    .preview { border:1px dashed rgba(245,197,24,.25); border-radius: 12px; padding: 10px; display:flex; align-items:center; gap:12px; }
+    .preview img { width: 64px; height: 96px; object-fit: cover; border-radius: 8px; background: #111827; }
+    .charcount { font-variant-numeric: tabular-nums; }
+
+    .sticky-actions { position: sticky; bottom: 0; background: rgba(5,7,15,.6); backdrop-filter: blur(8px); border-top: 1px solid var(--stroke); padding: 12px 0; margin-top: 8px; }
+
+    .alert.glass { background: rgba(255,255,255,.03); color: var(--text); }
+    .alert-success { border-color: rgba(34,197,94,.35) !important; }
+    .alert-warning { border-color: rgba(245,158,11,.35) !important; }
+    .alert-danger { border-color: rgba(239,68,68,.35) !important; }
+
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+    .skip-link{ position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden; }
+    .skip-link:focus{ position:static; width:auto; height:auto; padding:.5rem .75rem; z-index:10000; background:#111827; color:#fff; border-radius:.5rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu principal</a>
+  <%- include('partials/header') %>
+
+  <main id="main" class="container admin-main">
+    <!-- Topbar -->
+    <div class="glass admin-topbar d-flex justify-content-between mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-chess-king me-2" style="color:var(--gold);"></i>
+        <h1 class="h5 m-0">Administration</h1>
+        <span class="badge admin-badge">Création de film</span>
+      </div>
+      <small class="text-muted">Connecté :
+        <strong><%= (typeof user !== 'undefined' && user) ? user.username : 'admin' %></strong>
+        — Rôle <span class="role-chip">ADMIN</span>
+      </small>
+    </div>
+
+    <!-- Fil d'Ariane -->
+    <nav class="mb-3" aria-label="Fil d'Ariane">
+      <a class="link-muted" href="/admin"><i class="fa-solid fa-house me-1"></i>Accueil admin</a>
+      <span class="mx-2">/</span>
+      <span class="text-gold"><i class="fa-solid fa-film me-1"></i>Nouveau film</span>
+    </nav>
+
+    <!-- Flash messages (success/info/error) -->
+    <div aria-live="polite" aria-atomic="true">
+      <% if (typeof messages !== 'undefined') { %>
+        <% if (messages.success) { %>
+          <div class="alert alert-success glass alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            <%= Array.isArray(messages.success) ? messages.success.join('<br>') : messages.success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+          </div>
+        <% } %>
+        <% if (messages.info) { %>
+          <div class="alert alert-warning glass alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            <%= Array.isArray(messages.info) ? messages.info.join('<br>') : messages.info %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+          </div>
+        <% } %>
+        <% if (messages.error) { %>
+          <div class="alert alert-danger glass alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            <%= Array.isArray(messages.error) ? messages.error.join('<br>') : messages.error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+
+    <!-- Formulaire -->
+    <section class="panel glass">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="h5 m-0"><i class="fa-solid fa-film me-2" style="color:var(--gold);"></i>Créer un film</h2>
+        <a href="/admin/films" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-arrow-left-long me-1"></i> Retour à la liste
+        </a>
+      </div>
+
+      <!-- Erreurs de validation -->
+      <% if (errors && errors.length) { %>
+        <div class="alert alert-danger glass" role="alert">
+          <ul class="mb-0">
+            <% errors.forEach(e => { %>
+              <li><%= e %></li>
+            <% }) %>
+          </ul>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/admin/films" class="row g-3" autocomplete="off" novalidate>
+        <!-- <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"> -->
+
+        <div class="col-md-6">
+          <label class="form-label" for="titre">Titre <span class="text-danger" aria-hidden="true">*</span></label>
+          <input id="titre" class="form-control" name="titre" required maxlength="150"
+                 value="<%= (old && old.titre) ? old.titre : '' %>" aria-describedby="help-titre count-titre">
+          <div id="help-titre" class="help">Obligatoire — 150 caractères max.</div>
+          <div class="d-flex justify-content-end"><small id="count-titre" class="help charcount">0 / 150</small></div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="genre">Genre</label>
+          <input id="genre" class="form-control" name="genre" maxlength="50"
+                 value="<%= (old && old.genre) ? old.genre : '' %>" aria-describedby="count-genre">
+          <div class="d-flex justify-content-end"><small id="count-genre" class="help charcount">0 / 50</small></div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label" for="description">Description</label>
+          <textarea id="description" class="form-control" name="description" rows="4" maxlength="2000" aria-describedby="count-description"><%= (old && old.description) ? old.description : '' %></textarea>
+          <div class="d-flex justify-content-end"><small id="count-description" class="help charcount">0 / 2000</small></div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label" for="age_minimum">Âge minimum</label>
+          <input id="age_minimum" class="form-control" type="number" name="age_minimum" min="0" max="21"
+                 value="<%= (old && old.age_minimum !== undefined && old.age_minimum !== null) ? old.age_minimum : '' %>" aria-describedby="help-age">
+          <div id="help-age" class="help">Entre 0 et 21 — laisser vide si non applicable.</div>
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label" for="affiche_url">Affiche (URL)</label>
+          <input id="affiche_url" class="form-control" name="affiche_url"
+                 value="<%= (old && old.affiche_url) ? old.affiche_url : '' %>" aria-describedby="help-affiche">
+          <div id="help-affiche" class="help">Collez une URL d'image (JPG/PNG). Aperçu à droite.</div>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+          <div class="preview w-100" aria-live="polite">
+            <img id="posterPreview" alt="Aperçu affiche" src="<%= (old && old.affiche_url) ? old.affiche_url : '' %>">
+            <div>
+              <div class="small text-gold fw-semibold">Aperçu</div>
+              <div class="small text-muted">S'affiche automatiquement si l'URL est valide.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex align-items-center gap-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="cdc" name="label_coup_de_coeur" <%= (old && old.label_coup_de_coeur) ? 'checked' : '' %>>
+            <label class="form-check-label" for="cdc">Coup de cœur</label>
+          </div>
+          <span class="help">Mettez en avant ce film sur la page d'accueil.</span>
+        </div>
+
+        <div class="col-12 sticky-actions">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="help"><span class="text-danger">*</span> Champs obligatoires</span>
+            <div class="d-flex gap-2">
+              <a class="btn btn-outline-secondary" href="/admin/films">
+                <i class="fa-solid fa-xmark me-1"></i> Annuler
+              </a>
+              <button class="btn btn-gold" id="submitBtn">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function(){
+      const qs = s => document.querySelector(s);
+      const qsa = s => Array.from(document.querySelectorAll(s));
+      const titre = qs('#titre');
+      const genre = qs('#genre');
+      const description = qs('#description');
+      const posterInput = qs('#affiche_url');
+      const posterImg = qs('#posterPreview');
+      const submitBtn = qs('#submitBtn');
+
+      // Compteurs de caractères
+      const setCount = (el, id, max) => {
+        const c = qs(id);
+        if (!el || !c) return;
+        const update = () => { c.textContent = `${(el.value||'').length} / ${max}`; };
+        el.addEventListener('input', update); update();
+      };
+      setCount(titre, '#count-titre', 150);
+      setCount(genre, '#count-genre', 50);
+      setCount(description, '#count-description', 2000);
+
+      // Aperçu affiche en direct
+      const updatePoster = (url) => {
+        if (!posterImg) return;
+        if (url && /^(https?:)?\/\//i.test(url)) {
+          posterImg.src = url.trim();
+          posterImg.alt = 'Aperçu affiche';
+        } else {
+          posterImg.src = '';
+          posterImg.alt = 'Aperçu non disponible';
+        }
+      };
+      if (posterInput) {
+        posterInput.addEventListener('input', e => updatePoster(e.target.value));
+        updatePoster(posterInput.value);
+      }
+
+      // Anti double-submit + trim basique
+      document.forms[0]?.addEventListener('submit', (e) => {
+        ['titre','genre','affiche_url','description'].forEach(id => {
+          const el = qs('#'+id); if (el && typeof el.value === 'string') el.value = el.value.trim();
+        });
+        submitBtn?.setAttribute('disabled', 'disabled');
+        submitBtn?.classList.add('disabled');
+        setTimeout(() => { submitBtn?.removeAttribute('disabled'); submitBtn?.classList.remove('disabled'); }, 2500);
+      });
+
+      // Raccourci clavier Ctrl/Cmd+S
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          document.forms[0]?.requestSubmit?.();
+        }
+      });
+
+      // Focus premier champ
+      titre?.focus();
+    })();
+    // Fondu d’apparition du body
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+    });
+  </script>
+</body>
+</html>

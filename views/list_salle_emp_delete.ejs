@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Supprimer des salles – Cinéphoria</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <style>
+    :root {
+      --gold: #f5c518;
+      --bg1: #0a0f1f;
+      --ink: #e4e4e4;
+      --muted: #d0d0d0; /* texte lisible */
+    }
+
+    /* Fix footer qui remonte : corps en flex */
+    body {
+      background-color: var(--bg1);
+      color: var(--ink);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 1s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    body.loaded { opacity: 1; }
+
+    /* Le contenu prend la place, footer reste en bas */
+    main {
+      flex: 1;
+    }
+
+    h1.text-cinema {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(245,197,24,0.6);
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .card-cinema {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(245,197,24,0.25);
+      border-radius: 14px;
+      padding: 1.2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+      color: var(--ink);
+    }
+
+    .card-cinema:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(245,197,24,0.25);
+    }
+
+    /* NOM DU CINÉMA : couleur lisible */
+    .text-muted {
+      color: var(--muted) !important;
+    }
+
+    .btn-outline-danger:hover {
+      background-color: crimson;
+      color: #fff;
+    }
+
+    #searchInput {
+      max-width: 420px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(245,197,24,0.35);
+      color: var(--ink);
+      text-align: center;
+      border-radius: 6px;
+      margin-bottom: 40px;
+    }
+    #searchInput:focus {
+      background: rgba(0,0,0,0.4);
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(245,197,24,0.55);
+      color: var(--ink);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <%- include('partials/header_employe', { currentUser }) %>
+  </header>
+
+  <main class="container py-5">
+    <h1 class="text-cinema">🗑️ Supprimer des salles</h1>
+
+    <!-- 🔍 Barre de recherche -->
+    <div class="text-center">
+      <input type="text" id="searchInput" class="form-control mx-auto"
+             placeholder="🔎 Rechercher une salle ou un cinéma...">
+    </div>
+
+    <!-- 🔔 Messages flash -->
+    <% if (success && success.length > 0) { %>
+      <div class="alert alert-success text-center fw-bold mb-4">
+        ✅ <%= success[0] %>
+      </div>
+    <% } %>
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger text-center fw-bold mb-4">
+        ⚠️ <%= error[0] %>
+      </div>
+    <% } %>
+
+    <!-- 📋 Liste des salles -->
+    <div class="row g-4" id="salleContainer">
+      <% salles.forEach(salle => { %>
+        <div class="col-md-6 col-lg-4 salle-card">
+          <div class="card card-cinema h-100">
+
+            <div class="card-body">
+              <h5 class="card-title mb-2" style="color:var(--gold); font-family:'Cinzel', serif;">
+                🎦 <%= salle.nom_salle %>
+              </h5>
+              <p class="mb-1 text-muted">
+                🏛️ <%= salle.nom_cinema %>
+              </p>
+              <p class="mb-1"><strong>👥 Capacité :</strong> <%= salle.capacite %> places</p>
+              <p class="mb-1"><strong>📽️ Projection :</strong> <%= salle.qualite_projection || "—" %></p>
+            </div>
+
+            <div class="card-footer text-center bg-transparent border-0">
+              <form action="/intranet/salles/<%= salle.id_salle %>/delete" method="POST"
+                    onsubmit="return confirmDelete('<%= salle.nom_salle %>');">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                  🗑️ Supprimer
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if (salles.length === 0) { %>
+      <p class="text-center mt-5">Aucune salle enregistrée pour le moment.</p>
+    <% } %>
+
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <script>
+    window.addEventListener("load", () => document.body.classList.add("loaded"));
+
+    // Filtrage
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("keyup", () => {
+      const q = searchInput.value.toLowerCase();
+      document.querySelectorAll(".salle-card").forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(q) ? "" : "none";
+      });
+    });
+
+    function confirmDelete(salleNom) {
+      return confirm(`⚠️ Voulez-vous vraiment supprimer la salle "${salleNom}" ?`);
+    }
+  </script>
+</body>
+</html>

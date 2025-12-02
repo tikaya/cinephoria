@@ -1,0 +1,154 @@
+<!-- admin/seances/_form.ejs -->
+<div class="row g-3">
+
+  <!-- FILM -->
+  <div class="col-md-5">
+    <label class="form-label">Film *</label>
+    <select name="id_film" class="form-select" required>
+      <option value="">— Choisir un film —</option>
+      <% (films || []).forEach(f => { %>
+        <option value="<%= f.id_film %>"
+          <%= ((seance?.id_film ?? old?.id_film) == f.id_film) ? 'selected' : '' %>>
+          <%= f.titre %>
+        </option>
+      <% }) %>
+    </select>
+    <% if (errors) { const e = errors.find(x => x.field==='id_film'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- CINÉMA -->
+  <div class="col-md-6">
+    <label class="form-label">Cinéma *</label>
+    <select id="select-cinema" name="id_cinema" class="form-select" required>
+      <option value="">— choisir —</option>
+      <% (cinemas || []).forEach(c => { %>
+        <option value="<%= c.id_cinema %>"
+          <%= String((old?.id_cinema)||'') === String(c.id_cinema) ? 'selected' : '' %>>
+          <%= c.nom_cinema %><%= c.ville ? ' — ' + c.ville : '' %>
+        </option>
+      <% }) %>
+    </select>
+    <% if (errors) { const e = errors.find(x => x.field==='id_cinema'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- SALLE (dépend du cinéma) -->
+  <div class="col-md-6">
+    <label class="form-label">Salle *</label>
+    <select id="select-salle" name="id_salle" class="form-select" required></select>
+    <% if (errors) { const e = errors.find(x => x.field==='id_salle'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- QUALITÉ PROJECTION -->
+  <div class="col-md-3">
+    <label class="form-label">Qualité de projection</label>
+    <input type="text" name="qualite_projection" class="form-control"
+           value="<%= seance?.qualite_projection ?? old?.qualite_projection ?? '' %>"
+           placeholder="Ex: 2D, 3D, IMAX">
+  </div>
+
+  <!-- DATE -->
+  <div class="col-md-4">
+    <label class="form-label">Date *</label>
+    <input type="date" name="date_seance" class="form-control"
+           value="<%= seance?.date_seance ?? old?.date_seance ?? '' %>" required>
+    <% if (errors) { const e = errors.find(x => x.field==='date_seance'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- HEURE DÉBUT -->
+  <div class="col-md-4">
+    <label class="form-label">Heure début *</label>
+    <input type="time" name="heure_debut" class="form-control"
+           value="<%= (seance?.heure_debut ?? old?.heure_debut ?? '').toString().substring(0,5) %>" required>
+    <% if (errors) { const e = errors.find(x => x.field==='heure_debut'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- HEURE FIN -->
+  <div class="col-md-4">
+    <label class="form-label">Heure fin *</label>
+    <input type="time" name="heure_fin" class="form-control"
+           value="<%= (seance?.heure_fin ?? old?.heure_fin ?? '').toString().substring(0,5) %>" required>
+    <% if (errors) { const e = errors.find(x => x.field==='heure_fin'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+  <!-- PRIX -->
+  <div class="col-md-4">
+    <label class="form-label">Prix (€) *</label>
+    <input type="number" step="0.01" min="0" name="prix" class="form-control"
+           value="<%= seance?.prix ?? old?.prix ?? '' %>" required>
+    <% if (errors) { const e = errors.find(x => x.field==='prix'); if (e) { %>
+      <div class="text-warning small mt-1"><%= e.message %></div>
+    <% } } %>
+  </div>
+
+</div>
+
+<% if (errors) {
+  const e = errors.find(x => x.message && x.field === '_overlap');
+  if (e) { %>
+    <div class="alert alert-warning mt-3"><%= e.message %></div>
+<% } } %>
+
+<script>
+(function() {
+  // 'salles' doit contenir { id_salle, nom_salle, id_cinema }
+  const allSalles = <%- JSON.stringify(salles || []) %>;
+  const cinemaSel = document.getElementById('select-cinema');
+  const salleSel  = document.getElementById('select-salle');
+
+  function setSalleOptions(list, selectedSalle) {
+    if (!Array.isArray(list) || list.length === 0) {
+      salleSel.innerHTML = '<option value="">— aucune salle —</option>';
+      return;
+    }
+    salleSel.innerHTML = '<option value="">— choisir —</option>';
+    list.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id_salle;
+      opt.textContent = s.nom_salle;
+      if (String(selectedSalle) === String(s.id_salle)) opt.selected = true;
+      salleSel.appendChild(opt);
+    });
+  }
+
+  function fillForCinema(cinemaId, selectedSalle) {
+    const list = allSalles
+      .filter(s => String(s.id_cinema) === String(cinemaId))
+      .sort((a,b) => String(a.nom_salle).localeCompare(String(b.nom_salle)));
+    setSalleOptions(list, selectedSalle);
+  }
+
+  function findCinemaIdBySalleId(salleId) {
+    const s = allSalles.find(x => String(x.id_salle) === String(salleId));
+    return s ? String(s.id_cinema) : '';
+  }
+
+  // Pré-sélections (création/retour d'erreurs/édition)
+  const oldCinema     = '<%= old?.id_cinema || "" %>';
+  const oldSalle      = '<%= old?.id_salle  || "" %>';
+  const existingSalle = '<%= seance?.id_salle || "" %>';
+
+  let initCinema = oldCinema || findCinemaIdBySalleId(existingSalle) || cinemaSel.value;
+
+  // Si rien de choisi, prendre le premier cinéma réel si présent
+  if (!initCinema && cinemaSel.options.length > 1) {
+    initCinema = cinemaSel.options[1].value;
+    cinemaSel.value = initCinema;
+  }
+
+  if (initCinema) fillForCinema(initCinema, oldSalle || existingSalle);
+
+  cinemaSel.addEventListener('change', () => fillForCinema(cinemaSel.value, ''));
+})();
+</script>

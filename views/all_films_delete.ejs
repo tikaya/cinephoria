@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Supprimer un Film - Cinéphoria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0a0f1f;
+      color: #e4e4e4;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    h1.text-cinema {
+      font-family: 'Cinzel', serif;
+      color: #f5c518;
+      text-shadow: 0 0 10px rgba(245,197,24,0.6);
+      letter-spacing: 1px;
+    }
+
+    /* === Bloc messages flash === */
+    .flash-message {
+      text-align: center;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 15px 25px;
+      margin-bottom: 35px;
+      animation: fadeIn 0.8s ease;
+      box-shadow: 0 0 10px rgba(245, 197, 24, 0.5);
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .flash-success {
+      background: linear-gradient(90deg, #f5c518, #ffd84a);
+      color: #0a0f1f;
+      text-shadow: none;
+    }
+
+    .flash-error {
+      background: rgba(255, 100, 100, 0.2);
+      border: 1px solid rgba(255, 80, 80, 0.5);
+      color: #ff6666;
+      box-shadow: 0 0 15px rgba(255, 60, 60, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* === Cartes films === */
+    .film-card {
+      opacity: 0;
+      transform: translateY(25px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(245,197,24,0.2);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+    .film-card.visible { opacity: 1; transform: translateY(0); }
+
+    .film-card img {
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      height: 280px;
+      width: 100%;
+      object-fit: cover;
+      filter: brightness(90%);
+      transition: transform 0.4s ease, filter 0.4s ease;
+    }
+    .film-card img:hover { transform: scale(1.05); filter: brightness(100%); }
+
+    .film-card .card-body { background: transparent; padding: 1.2rem; }
+
+    .film-card h5 {
+      color: #f5c518;
+      font-family: 'Cinzel', serif;
+      text-shadow: 0 0 6px rgba(245,197,24,0.5);
+      font-size: 1.1rem;
+    }
+
+    .film-card p { color: #e4e4e4; font-size: 0.95rem; }
+    .film-card small { color: #bbb; }
+
+    /* 🎬 Bouton Cinéphoria */
+    .btn-cinema {
+      background-color: #f5c518;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      text-transform: uppercase;
+      transition: background 0.3s ease, transform 0.2s ease;
+      border-radius: 6px;
+    }
+
+    .btn-cinema:hover {
+      background-color: #ffd84a;
+      transform: translateY(-2px);
+      box-shadow: 0 0 10px rgba(245,197,24,0.5);
+    }
+
+    footer { margin-top: 80px; }
+
+    .no-film {
+      color: #aaa;
+      font-size: 1.2rem;
+      margin-top: 50px;
+      font-style: italic;
+    }
+
+    @media (min-width: 992px) {
+      .film-card { min-height: 480px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <%- include('partials/header_employe') %>
+  </header>
+
+  <main class="container py-5">
+    <h1 class="text-center text-cinema mb-4">🗑️ Supprimer un Film</h1>
+
+    <!-- 🎬 Bloc messages flash -->
+    <% if (messages.success && messages.success.length > 0) { %>
+      <div class="flash-message flash-success">
+        🎉 <%= messages.success %>
+      </div>
+    <% } %>
+
+    <% if (messages.error && messages.error.length > 0) { %>
+      <div class="flash-message flash-error">
+        ⚠️ <%= messages.error %>
+      </div>
+    <% } %>
+
+    <% if (films && films.length > 0) { %>
+      <div class="row g-4">
+        <% films.forEach((film, index) => { %>
+          <div class="col-sm-6 col-md-4">
+            <div class="card film-card h-100">
+              <img src="<%= film.affiche_url %>" alt="<%= film.titre %>">
+              <div class="card-body text-center">
+                <h5 class="card-title"><%= film.titre %></h5>
+                <p class="card-text"><%= film.genre %></p>
+                <p><small>Âge minimum : <%= film.age_minimum %> ans</small></p>
+
+                <form method="POST"
+                      action="/intranet/films/<%= film.id_film %>/delete"
+                      onsubmit="return confirm('Voulez-vous vraiment supprimer ce film ? Cette action est irréversible.')">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-cinema w-100">Supprimer</button>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p class="text-center no-film">Aucun film trouvé dans la base de données.</p>
+    <% } %>
+  </main>
+
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const cards = document.querySelectorAll(".film-card");
+      cards.forEach((card, i) => {
+        setTimeout(() => card.classList.add("visible"), i * 150);
+      });
+    });
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+    });
+  </script>
+</body>
+</html>

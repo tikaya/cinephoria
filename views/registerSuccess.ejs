@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inscription réussie - Cinéphoria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    body {
+      background: radial-gradient(circle at top, #1a1f36, #0a0f1f);
+      background-size: 300% 300%;
+      animation: gradientMove 15s ease infinite;
+      color: #f1f1f1;
+      font-family: 'Poppins', sans-serif;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+    body.loaded { opacity: 1; }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    main { flex: 1; display: flex; align-items: center; justify-content: center; }
+
+    /* Conteneur premium */
+    .cinema-success {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(245,197,24,0.4);
+      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 0 35px rgba(245,197,24,0.3);
+      padding: 40px;
+      max-width: 550px;
+      animation: popIn 0.8s ease-in-out forwards;
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.85) translateY(20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .cinema-success h1 {
+      font-family: 'Cinzel', serif;
+      color: #f5c518;
+      text-shadow: 0 0 12px rgba(245,197,24,0.6);
+      margin-bottom: 20px;
+      font-size: 2.3rem;
+    }
+    .cinema-success p { color: #ddd; font-size: 1.2rem; }
+
+    /* Bouton stylisé avec lueur pulsante */
+    .btn-cinema {
+      background: linear-gradient(45deg, #ff004d, #a700ff);
+      color: #fff;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 12px 24px;
+      border: none;
+      text-shadow: 0 0 6px rgba(0,0,0,0.8);
+      font-size: 1.1rem;
+      animation: pulseGlow 2.5s infinite ease-in-out;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(245,197,24,0.3); }
+      50% { box-shadow: 0 0 40px rgba(245,197,24,0.7); }
+    }
+    .btn-cinema:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 40px rgba(245,197,24,0.8);
+    }
+
+    /* Footer fixé */
+    footer {
+      background-color: #0a0f1f;
+      color: #ccc;
+      text-align: center;
+      padding: 12px;
+      border-top: 1px solid rgba(245,197,24,0.4);
+      font-size: 0.9rem;
+    }
+    footer a { color: #f5c518; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="container">
+    <div class="cinema-success text-center shadow">
+      <h1><i class="bi bi-star-fill"></i> Bienvenue sur Cinéphoria !</h1>
+      <p class="lead">Votre compte a été <strong class="text-success">créé avec succès</strong>.</p>
+      <hr class="border-secondary">
+      <p>Connectez-vous dès maintenant pour découvrir nos films et réserver vos séances.</p>
+      <a href="/login" class="btn btn-cinema mt-4">
+        <i class="bi bi-box-arrow-in-right"></i> Se connecter
+      </a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Apparition fluide du body et de la boîte
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+      setTimeout(() => {
+        document.querySelector(".cinema-success").style.opacity = "1";
+        document.querySelector(".cinema-success").style.transform = "scale(1)";
+      }, 150);
+    });
+  </script>
+</body>
+</html>
