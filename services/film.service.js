@@ -17,7 +17,7 @@ export const fetchFilmsWithFilters = async (filters) => {
 
 
 
-function validate(input) {
+export  function validate(input) {
   const errors = [];
   const titre = (input.titre || '').trim();
   const description = (input.description || '').trim();

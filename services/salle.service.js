@@ -4,7 +4,7 @@ import * as model from '../models/salle.model.js';
 import { findAllCinemas } from "../models/cinema.model.js";
 
 /* ------------ Helpers ------------ */
-function assertValidId(id) {
+export function assertValidId(id) {
   const n = Number(id);
   if (!Number.isFinite(n) || !Number.isInteger(n) || n <= 0) {
     const e = new Error("ID invalide");
@@ -14,7 +14,7 @@ function assertValidId(id) {
   return n;
 }
 
-function sanitizeSallePayload(payload = {}) {
+export function sanitizeSallePayload(payload = {}) {
   const {
     nom_salle,
     capacite,
@@ -114,7 +114,7 @@ export async function deleteSalle(id) {
     throw err;
   }
 }
-function validate(input) {
+export function validate(input) {
   const errors = [];
   const nom = (input.nom_salle || '').trim();
 
@@ -184,7 +184,7 @@ export async function remove(id) {
   }
 }
 
-function toLetters(n){ let s=''; while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26);} return s; }
+export function toLetters(n){ let s=''; while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26);} return s; }
 
 export async function generateSeatsGrid({ id_salle, rows, cols, wipe=false, pmr_count=0, pmr_mode='none', pmr_list='' }) {
   if (!Number.isInteger(rows) || rows <= 0) throw new Error('Nombre de rangées invalide');

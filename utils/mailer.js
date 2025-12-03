@@ -2,8 +2,6 @@
 import nodemailer from "nodemailer";
 import "dotenv/config";
 
-
-
 // --- Normalisation & validations env
 const HOST = process.env.GMAIL_HOST || "smtp.gmail.com";
 const PORT = Number(process.env.GMAIL_PORT) || 587;
@@ -31,16 +29,16 @@ export const mailer = nodemailer.createTransport({
     user: process.env.GMAIL_USER,
     pass: PASS,
   },
-  // pool: true, // utile si tu envoies beaucoup de mails
-  // tls: { servername: "smtp.gmail.com" }, // rarement nécessaire
 });
 
-// Vérification de la connexion SMTP (désactive en prod si ça te gêne)
-mailer.verify()
-  .then(() => console.log("📨 Mailer connecté à Gmail SMTP"))
-  .catch(err => console.error("❌ Erreur connexion SMTP:", err.message));
+// 🚫 Empêche verify() en mode test (Jest)
+if (process.env.NODE_ENV !== "test") {
+  mailer.verify()
+    .then(() => console.log("📨 Mailer connecté à Gmail SMTP"))
+    .catch(err => console.error("❌ Erreur connexion SMTP:", err.message));
+}
 
-  export const sendTempPassword = async (to, password) => {
+export const sendTempPassword = async (to, password) => {
   await mailer.sendMail({
     from: `"Cinéphoria" <${process.env.GMAIL_USER}>`,
     to,

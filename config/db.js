@@ -1,25 +1,42 @@
 // config/db.js
 import pg from "pg";
-import "dotenv/config"; // charge .env en amont
+import "dotenv/config";
 
 const { Pool } = pg;
 
-const {
-  DB_HOST = "localhost",
-  DB_PORT = "5432",
-  DB_USER = "postgres",
-  DB_PASSWORD,                 // peut être undefined
-  DB_NAME = "cinephoria",
-} = process.env;
+// Détermine la config selon l'environnement
+let pgConfig;
 
-export const pgConfig = {
-  host: DB_HOST,
-  port: Number(DB_PORT),
-  user: DB_USER,
-  database: DB_NAME,
-  ...(DB_PASSWORD != null ? { password: DB_PASSWORD } : {}), // ← n’ajoute password que s’il existe
-  // ssl: { rejectUnauthorized: false }, // si besoin en prod
-};
+if (process.env.NODE_ENV === "test") {
+  // Mode TEST
+  if (!process.env.DATABASE_URL) {
+    throw new Error("❌ DATABASE_URL manquant pour l'environnement de test !");
+  }
+  pgConfig = {
+    connectionString: process.env.DATABASE_URL,
+  };
+} else {
+  // Mode DEV / PROD
+  const {
+    DB_HOST = "localhost",
+    DB_PORT = "5432",
+    DB_USER = "postgres",
+    DB_PASSWORD,
+    DB_NAME = "cinephoria",
+  } = process.env;
 
+  pgConfig = {
+    host: DB_HOST,
+    port: Number(DB_PORT),
+    user: DB_USER,
+    database: DB_NAME,
+    ...(DB_PASSWORD != null ? { password: DB_PASSWORD } : {}),
+  };
+}
+
+// Création du pool avec la config choisie
 const pool = new Pool(pgConfig);
+
+// Exports AU NIVEAU RACINE (pas dans un if)
+export { pgConfig };
 export default pool;

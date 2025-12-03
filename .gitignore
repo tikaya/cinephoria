@@ -10,6 +10,7 @@ yarn-error.log*
 .env.production
 .env.*.local
 .env.docker  
+.env.test
 
 # IDE
 .vscode/

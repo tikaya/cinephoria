@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { findUserByEmail, updatePassword } from "../models/user.model.js";
 import { sendTempPassword } from "../utils/mailer.js";
 
-const generatePassword = (length = 10) => {
+export const generatePassword = (length = 10) => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#";
   let pwd = "";
   for (let i = 0; i < length; i++) {

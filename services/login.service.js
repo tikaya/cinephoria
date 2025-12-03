@@ -6,6 +6,8 @@ export const loginService = async (email, password) => {
   const normEmail = String(email || "").trim().toLowerCase();
   const pwd = String(password || "");
   
+
+  
   console.log("[AUTH] email saisi:", normEmail);
 
   // Validation basique avant bcrypt

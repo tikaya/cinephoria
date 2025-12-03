@@ -60,8 +60,8 @@ const PgStore = PgStoreFactory(session);
 const PORT = process.env.PORT || 3000;
 
 // Pour utiliser __dirname en ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDirPath = path.dirname(currentFilePath);
 
 // -------- Middlewares globaux --------
 app.use(morgan("dev"));
@@ -88,10 +88,10 @@ app.use(flash());
 // -------- Configuration EJS --------
 app.set('view engine', 'ejs');
 
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(currentDirPath, 'views'));
 
 // -------- Fichiers statiques --------
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(currentDirPath, 'public')));
 
 // -------- Routeurs --------
 app.use('/', registerRouter);
@@ -138,9 +138,6 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
-// -------- Démarrage du serveur --------
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
-});
-startPgListener().catch(console.error);
-startSyncPoller(15000);
+
+// ✅ AJOUTER À LA FIN de app.js
+export default app;
