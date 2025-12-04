@@ -19,7 +19,7 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     restart: unless-stopped
-    command: node app.js
+    command: node server.js
 
   postgres:
     image: postgres:16-alpine

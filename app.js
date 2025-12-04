@@ -56,6 +56,8 @@ import adminStatsRouter from "./routes/admin.stats.router.js";
 
 
 const app = express();
+// Trust proxy pour Railway/Heroku (HTTPS derrière un proxy)
+app.set('trust proxy', 1);
 const PgStore = PgStoreFactory(session);
 const PORT = process.env.PORT || 3000;
 

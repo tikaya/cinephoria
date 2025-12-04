@@ -1,22 +1,21 @@
 // config/db.js
 import pg from "pg";
 import "dotenv/config";
-
 const { Pool } = pg;
 
-// Détermine la config selon l'environnement
 let pgConfig;
 
-if (process.env.NODE_ENV === "test") {
-  // Mode TEST
-  if (!process.env.DATABASE_URL) {
-    throw new Error("❌ DATABASE_URL manquant pour l'environnement de test !");
-  }
+// Si DATABASE_URL existe, l'utiliser (Railway, Heroku, tests, etc.)
+if (process.env.DATABASE_URL) {
   pgConfig = {
     connectionString: process.env.DATABASE_URL,
+    // Railway utilise SSL en production
+    ...(process.env.NODE_ENV === "production" && {
+      ssl: { rejectUnauthorized: false }
+    })
   };
 } else {
-  // Mode DEV / PROD
+  // Sinon, utiliser les variables séparées (dev local)
   const {
     DB_HOST = "localhost",
     DB_PORT = "5432",
@@ -24,7 +23,7 @@ if (process.env.NODE_ENV === "test") {
     DB_PASSWORD,
     DB_NAME = "cinephoria",
   } = process.env;
-
+  
   pgConfig = {
     host: DB_HOST,
     port: Number(DB_PORT),
@@ -34,9 +33,7 @@ if (process.env.NODE_ENV === "test") {
   };
 }
 
-// Création du pool avec la config choisie
 const pool = new Pool(pgConfig);
 
-// Exports AU NIVEAU RACINE (pas dans un if)
 export { pgConfig };
 export default pool;
