@@ -116,6 +116,8 @@
 </head>
 <body>
   <%- include('../../partials/header') %>
+<div id="navbar-spacer"></div>
+
 
   <main class="container wrap">
     <% if (_created) { %>
@@ -274,5 +276,21 @@
       new bootstrap.Tooltip(el);
     });
   </script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const nav = document.querySelector(".cinema-navbar");
+  const spacer = document.getElementById("navbar-spacer");
+
+  if (!nav || !spacer) return;
+
+  function update() {
+    spacer.style.height = nav.offsetHeight + "px";
+  }
+
+  update();
+  window.addEventListener("resize", update);
+});
+</script>
+
 </body>
 </html>

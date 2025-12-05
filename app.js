@@ -48,13 +48,6 @@ import contactRouter from "./routes/contact.router.js";
 import adminStatsRouter from "./routes/admin.stats.router.js";
 
 
-
-
-
-
-
-
-
 const app = express();
 // Trust proxy pour Railway/Heroku (HTTPS derrière un proxy)
 app.set('trust proxy', 1);
